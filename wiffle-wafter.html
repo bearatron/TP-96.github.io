@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wiffle Wafter — Tanmay Poddar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #F45D00;
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --surface2: #1c1c1c;
+      --text: #f0ede8;
+      --muted: #7a7570;
+      --border: #2a2a2a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.12em;
+      color: var(--orange);
+      text-decoration: none;
+    }
+    .nav-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--orange); }
+
+    /* HERO */
+    .project-hero {
+      min-height: 55vh;
+      padding: 10rem 3rem 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .project-hero::after {
+      content: '03';
+      position: absolute;
+      right: -0.02em;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28vw;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(244,93,0,0.06);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .project-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--orange);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .project-eyebrow::before {
+      content: '';
+      display: block;
+      width: 2rem;
+      height: 1px;
+      background: var(--orange);
+    }
+    .project-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 8vw, 7.5rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      margin-bottom: 2.5rem;
+    }
+    .project-hero h1 span { color: var(--orange); }
+    .project-meta {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .meta-item label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--orange);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .meta-item p { font-size: 0.9rem; color: var(--muted); }
+
+    /* CONTENT SECTIONS */
+    .content-section {
+      padding: 6rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .content-section:last-of-type { border-bottom: none; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--orange);
+      letter-spacing: 0.1em;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* GRIDS */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .two-col-wide {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    /* PROSE */
+    .prose p {
+      color: #b0aba4;
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.85;
+      margin-bottom: 1.4rem;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: var(--text); font-weight: 400; }
+    .prose h3 {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin: 2.5rem 0 1rem;
+    }
+    .prose ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .prose li {
+      font-size: 1rem;
+      color: #b0aba4;
+      font-weight: 300;
+      padding-left: 1.5rem;
+      position: relative;
+      line-height: 1.65;
+    }
+    .prose li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--orange);
+      font-size: 0.65rem;
+      top: 0.35rem;
+    }
+
+    blockquote {
+      border-left: 2px solid var(--orange);
+      padding: 1rem 1.5rem;
+      margin: 2rem 0;
+      background: rgba(244,93,0,0.03);
+    }
+    blockquote p {
+      font-style: italic;
+      color: #b0aba4 !important;
+      font-size: 1.05rem !important;
+      margin: 0 !important;
+    }
+
+    /* FIGURES */
+    .fig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .fig-grid.single { grid-template-columns: 1fr; }
+    .fig-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+    figure {
+      background: var(--surface);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    figure img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(15%);
+      transition: filter 0.35s, transform 0.4s;
+    }
+    figure img.tall { height: 320px; }
+    figure img.short { height: 200px; }
+    figure:hover img { filter: grayscale(0%); transform: scale(1.02); }
+    figcaption {
+      padding: 0.75rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* CALLOUT */
+    .callout {
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      background: var(--surface);
+    }
+    .callout-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--orange);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .callout p {
+      color: #b0aba4;
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* CHIPS */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.75rem;
+    }
+
+    /* OBJECTIVES GRID */
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+    .objective-item {
+      background: var(--surface);
+      padding: 1.5rem;
+    }
+    .objective-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--orange);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+    }
+    .objective-text {
+      font-size: 0.95rem;
+      color: #b0aba4;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    /* PROJECT NAV */
+    .project-nav {
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .project-nav a {
+      padding: 2.5rem 3rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: background 0.3s;
+      border-right: 1px solid var(--border);
+    }
+    .project-nav a:last-child { border-right: none; text-align: right; }
+    .project-nav a:hover { background: rgba(244,93,0,0.03); }
+    .pnav-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--orange);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .pnav-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .project-hero { padding: 8rem 1.5rem 3rem; }
+      .content-section { padding: 4rem 1.5rem; }
+      .two-col, .two-col-wide { grid-template-columns: 1fr; gap: 3rem; }
+      .fig-grid { grid-template-columns: 1fr; }
+      .fig-grid.three { grid-template-columns: 1fr; }
+      .objectives-grid { grid-template-columns: 1fr 1fr; }
+      .project-nav { grid-template-columns: 1fr; }
+      .project-nav a { border-right: none; border-bottom: 1px solid var(--border); }
+      .project-nav a:last-child { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">TP</a>
+    <a class="nav-back" href="index.html">← Back to Portfolio</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="project-hero">
+    <div class="project-eyebrow">Project 03 — Assistive Technology / Mechanical Design</div>
+    <h1>Wiffle<br><span>Wafter</span></h1>
+    <div class="project-meta">
+      <div class="meta-item">
+        <label>Timeline</label>
+        <p>Jan 6 — Apr 4, 2026</p>
+      </div>
+      <div class="meta-item">
+        <label>Role</label>
+        <p>Subject Matter Expert</p>
+      </div>
+      <div class="meta-item">
+        <label>Skills</label>
+        <p>CAD · 3D Printing · Fabrication</p>
+      </div>
+      <div class="meta-item">
+        <label>Budget</label>
+        <p>Under $50</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="content-section">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Project Overview</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col-wide reveal">
+      <div class="prose">
+        <p>The goal of Project 3 was to design a real-world solution for our client <strong>Mark</strong> — a retired individual living with juvenile arthritis. The condition significantly limits his grip strength, fine motor control, and upper body endurance.</p>
+        <p>One area directly affected is his ability to play with his dog, <strong>Rosie</strong>. Mark struggles to throw a ball far enough to engage her in a meaningful game of fetch. Our solution: a mechanical ball launcher that restores that connection.</p>
+        <blockquote>
+          <p>The design prioritized Mark's limitations at every step — from mechanism selection to handle ergonomics — while targeting commercial viability.</p>
+        </blockquote>
+      </div>
+      <div>
+        <div class="callout">
+          <div class="callout-label">Design Objectives</div>
+          <p>Light &amp; accessible · Under $50 · Durable · Commercially generalizable · Safe for user &amp; dog</p>
+        </div>
+        <div class="fig-grid single" style="margin-top: 1.5rem;">
+          <figure>
+            <img src="IMG_38361.jpeg" alt="Final Wiffle Wafter prototype" class="tall">
+            <figcaption>Figure 1 — Final prototype</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="objectives-grid reveal">
+      <div class="objective-item">
+        <div class="objective-num">01</div>
+        <div class="objective-text">Light &amp; Accessible for Mark to use</div>
+      </div>
+      <div class="objective-item">
+        <div class="objective-num">02</div>
+        <div class="objective-text">Low Cost — under $50</div>
+      </div>
+      <div class="objective-item">
+        <div class="objective-num">03</div>
+        <div class="objective-text">Durable construction</div>
+      </div>
+      <div class="objective-item">
+        <div class="objective-num">04</div>
+        <div class="objective-text">Potential for commercial application</div>
+      </div>
+      <div class="objective-item">
+        <div class="objective-num">05</div>
+        <div class="objective-text">Safe for user &amp; dog</div>
+      </div>
+      <div class="objective-item">
+        <div class="objective-num">06</div>
+        <div class="objective-text">Launch distance ≥ 7.5 m</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDIVIDUAL CONTRIBUTIONS -->
+  <div class="content-section">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Individual Contributions</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col reveal">
+      <div class="prose">
+        <p>I served as the <strong>Subject Matter Expert</strong> for this project — maintaining an accurate database of sources and references, and ensuring the project report was completed on time with full team participation.</p>
+        <p>Beyond my defined role, I contributed across the full design and build pipeline: creating initial concept sketches, refining them into <strong>CAD models</strong>, fabricating the handle and barrel, and leading the final testing phase with another team member.</p>
+        <h3>Responsibilities</h3>
+        <ul>
+          <li>Maintained references &amp; source database</li>
+          <li>Ensured report completion and team participation</li>
+          <li>Concept sketching and CAD modeling</li>
+          <li>Fabrication — handle and barrel</li>
+          <li>Led final testing</li>
+        </ul>
+      </div>
+      <div>
+        <div class="callout">
+          <div class="callout-label">Subject Matter Expert</div>
+          <p>As SME, my focus was keeping the team grounded in evidence. Every design decision was cross-referenced against our objectives and constraints — especially accessibility for Mark.</p>
+        </div>
+        <div class="chip-row" style="margin-top: 1.5rem;">
+          <span class="chip">CAD / Fusion 360</span>
+          <span class="chip">3D Printing</span>
+          <span class="chip">Fabrication</span>
+          <span class="chip">Testing</span>
+          <span class="chip">Documentation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN PROCESS -->
+  <div class="content-section">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Design Process</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="two-col-wide reveal">
+      <div class="prose">
+        <p>We began by brainstorming mechanisms capable of launching a ball roughly <strong>7.5 m</strong>. My first personal concept was a spring-based design where the user pulled back a string handle — minimal moving parts, mountable in a wheelchair cup holder.</p>
+        <p>My second concept introduced a <strong>rack-and-pinion system</strong> with a hand crank to wind a spring, and ratcheting gears to hold tension without requiring constant force from the user. The ratchet-and-pawl mechanism was key — Mark wouldn't need to strain to maintain compression.</p>
+        <p>As a team we converged on a pull-back spring mechanism, which I developed into a CAD model featuring <strong>3D-printed springs</strong> slotted into attachment points on both ends. A half-scale model was printed to rapidly validate the mechanism before committing to full-scale fabrication.</p>
+      </div>
+      <div>
+        <div class="fig-grid" style="margin: 0;">
+          <figure>
+            <img src="IMG_2745.jpg" alt="Spring-based initial concept sketch" class="tall">
+            <figcaption>Figure 2 — Spring-based concept sketch</figcaption>
+          </figure>
+          <figure>
+            <img src="d624aab0-0853-4b74-a1df-1759cdc5bf74.png" alt="Rack and pinion gear-based concept sketch" class="tall">
+            <figcaption>Figure 3 — Rack &amp; pinion concept sketch</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="fig-grid single reveal" style="max-width: 700px; margin-top: 0;">
+      <figure>
+        <img src="Screenshot_2026-04-05_143602.png" alt="Initial CAD model with 3D printed springs" style="height: 340px; object-fit: cover;">
+        <figcaption>Figure 4 — Initial CAD model with 3D-printed springs (half-scale)</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- FABRICATION -->
+  <div class="content-section">
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Fabrication & Iteration</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="prose reveal" style="max-width: 720px; margin-bottom: 3rem;">
+      <p>After fabricating the half-scale prototype, one of the 3D-printed springs snapped under repeated load. We pivoted to a <strong>metal spring</strong>, which required rethinking the entire launch method.</p>
+      <blockquote>
+        <p>3D-printed springs are not ideal for high-stress applications — best reserved for alignment and light-duty uses.</p>
+      </blockquote>
+      <p>The next iteration used a metal spring with an end plate the user compressed directly. Testing exceeded our target launch distance, but the mechanism jammed repeatedly. We then added a <strong>central solid shaft</strong> connecting the launch plate through a fixed barrel plate — this resolved the jamming.</p>
+      <p>The full-scale model revealed a critical insight hidden by small-scale prototyping: applying force off-center (as Mark would from a wheelchair) caused lateral loads on the barrel walls, jamming the launcher. We redesigned for a <strong>centrally-pulled handle</strong>, reducing off-axis forces and dramatically improving energy efficiency.</p>
+    </div>
+
+    <div class="fig-grid three reveal">
+      <figure>
+        <img src="a8ec7063-b4ef-409a-9fd8-deff71c221cf.png" alt="Initial half-scale physical prototype">
+        <figcaption>Figure 5 — Half-scale initial prototype</figcaption>
+      </figure>
+      <figure>
+        <img src="4f2ea5c9-2684-4858-8241-25044d36ef90.png" alt="Second prototype with metal spring">
+        <figcaption>Figure 6 — Second prototype, metal spring iteration</figcaption>
+      </figure>
+      <figure>
+        <img src="35ecb9de-16e3-4f2e-9c7e-b482c32fcb31.png" alt="Full-scale prototype without barrel">
+        <figcaption>Figure 7 — Full-scale prototype, barrel removed</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- FINAL DESIGN -->
+  <div class="content-section">
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Final Design</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="two-col reveal">
+      <div class="prose">
+        <p>The final design uses <strong>PVC piping</strong> for the barrel and a string handle the user pulls back and releases to launch the ball. The solution proved extremely durable — surviving a drop from the second floor.</p>
+        <p>Mass and cost came in well below targets, meeting two of our primary objectives with margin to spare.</p>
+
+        <h3>Strengths</h3>
+        <ul>
+          <li>Exceptional durability — survived 2nd-floor drop</li>
+          <li>Far below cost and mass targets</li>
+          <li>Comfortable string handle interface</li>
+          <li>Simple, low-maintenance mechanism</li>
+        </ul>
+
+        <h3>Areas for Improvement</h3>
+        <ul>
+          <li>Spring was underpowered — a stiffer spring would significantly increase launch distance</li>
+          <li>Handle needed greater rigidity for consistent performance</li>
+        </ul>
+
+        <blockquote>
+          <p>The spring swap is a simple modification. Given one more iteration, launch distance would have comfortably cleared the target.</p>
+        </blockquote>
+
+        <div class="chip-row">
+          <span class="chip">PVC Barrel</span>
+          <span class="chip">Metal Spring</span>
+          <span class="chip">String Handle</span>
+          <span class="chip">3D Printing</span>
+          <span class="chip">Assistive Design</span>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <div class="callout-label">Final Demo</div>
+          <p>The final demonstration video (Figure 8) shows the launcher in operation — loaded and fired by a single user with minimal wrist force, validating the core accessibility objective.</p>
+        </div>
+        <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); overflow: hidden;">
+          <video controls style="width: 100%; display: block; max-height: 320px; object-fit: cover;">
+            <source src="p3demo.mov" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <div style="padding: 0.75rem 1rem; font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; border-top: 1px solid var(--border);">Figure 8 — Final demonstration video</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFLECTION -->
+  <div class="content-section">
+    <div class="section-header reveal">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Reflection</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col reveal">
+      <div class="prose">
+        <p>A core challenge was limited manufacturing time against a design that specified a large prototype requiring long print durations. Our solution: prototype at <strong>1:6 scale</strong>. During Week 9 studio, I printed a rough concept, found the spring was mounted at an angle, corrected it, and printed a new model — all in the same session.</p>
+        <blockquote>
+          <p>Failure is an essential part of the design process. Small prototypes allow faster iteration — but they can be misleading, performing much better than the eventual full-scale model.</p>
+        </blockquote>
+        <p>We used <strong>weighted decision matrices</strong> at every crossroads — choosing the ball launcher over a pooper scooper specifically because it offered more universal application, better serving both Mark and Rosie.</p>
+      </div>
+      <div class="prose">
+        <h3>Design Philosophy Going Forward</h3>
+        <p>I will integrate rapid prototyping as my default first step: define the objective, build, evaluate, then document what the prototype proved and what it didn't before moving on.</p>
+        <ul>
+          <li>Print prototypes at reduced scale when testing mechanism concepts</li>
+          <li>Always test at final scale before committing to a design decision</li>
+          <li>Account for off-axis loading in any mechanism designed for one-handed use</li>
+          <li>Overbuild first — optimize after it works</li>
+        </ul>
+        <blockquote>
+          <p>Iterate quickly and design your prototypes to be simple to fabricate.</p>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT NAV -->
+  <div class="project-nav">
+    <a href="highschool.html">
+      <span class="pnav-label">← Previous</span>
+      <span class="pnav-title">High School Projects</span>
+    </a>
+    <a href="robot-arm.html">
+      <span class="pnav-label">Next Project →</span>
+      <span class="pnav-title">Robot Arm Effector</span>
+    </a>
+  </div>
+
+  <footer style="border-top: 1px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em;">© 2026 Tanmay Poddar</span>
+    <span style="font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em;">Project 03 / 03</span>
+  </footer>
+
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
