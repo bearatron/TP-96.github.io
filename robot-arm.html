@@ -1,644 +1,428 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Robot Arm End-Effector — Tanmay Poddar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --orange: #F45D00;
-      --bg: #0d0d0d;
-      --surface: #141414;
-      --surface2: #1c1c1c;
-      --text: #f0ede8;
-      --muted: #7a7570;
-      --border: #2a2a2a;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 18px;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robot Arm End-Effector — Tanmay Poddar</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./robot-arm.css" />
+  </head>
+  <body>
+    <nav>
+      <a class="nav-logo" href="index.html">TP</a>
+      <a class="nav-back" href="index.html">← Back to Portfolio</a>
+    </nav>
 
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.2rem 3rem;
-      border-bottom: 1px solid var(--border);
-      background: rgba(13,13,13,0.85);
-      backdrop-filter: blur(12px);
-    }
-    .nav-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.12em;
-      color: var(--orange);
-      text-decoration: none;
-    }
-    .nav-back {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-back:hover { color: var(--orange); }
-
-    /* HERO */
-    .project-hero {
-      min-height: 55vh;
-      padding: 10rem 3rem 5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      position: relative;
-      overflow: hidden;
-      border-bottom: 1px solid var(--border);
-    }
-    .project-hero::after {
-      content: '01';
-      position: absolute;
-      right: -0.02em;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28vw;
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(244,93,0,0.06);
-      pointer-events: none;
-      line-height: 1;
-    }
-    .project-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--orange);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .project-eyebrow::before {
-      content: '';
-      display: block;
-      width: 2rem;
-      height: 1px;
-      background: var(--orange);
-    }
-    .project-hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3.5rem, 8vw, 7.5rem);
-      line-height: 0.95;
-      letter-spacing: 0.02em;
-      margin-bottom: 2.5rem;
-    }
-    .project-hero h1 span { color: var(--orange); }
-    .project-meta {
-      display: flex;
-      gap: 3rem;
-      flex-wrap: wrap;
-    }
-    .meta-item label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--orange);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
-    .meta-item p { font-size: 0.9rem; color: var(--muted); }
-
-    /* CONTENT SECTIONS */
-    .content-section {
-      padding: 6rem 3rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .content-section:last-of-type { border-bottom: none; }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1.5rem;
-      margin-bottom: 3.5rem;
-    }
-    .section-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--orange);
-      letter-spacing: 0.1em;
-    }
-    .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      letter-spacing: 0.05em;
-      line-height: 1;
-    }
-    .section-line { flex: 1; height: 1px; background: var(--border); }
-
-    /* TWO-COL GRID */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      align-items: start;
-    }
-    .two-col-wide {
-      display: grid;
-      grid-template-columns: 3fr 2fr;
-      gap: 5rem;
-      align-items: start;
-    }
-
-    /* PROSE */
-    .prose p {
-      color: #b0aba4;
-      font-size: 1.05rem;
-      font-weight: 300;
-      line-height: 1.85;
-      margin-bottom: 1.4rem;
-    }
-    .prose p:last-child { margin-bottom: 0; }
-    .prose strong { color: var(--text); font-weight: 400; }
-
-    .prose h3 {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin: 2.5rem 0 1rem;
-    }
-    .prose ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      margin-bottom: 1.5rem;
-    }
-    .prose li {
-      font-size: 1rem;
-      color: #b0aba4;
-      font-weight: 300;
-      padding-left: 1.5rem;
-      position: relative;
-      line-height: 1.65;
-    }
-    .prose li::before {
-      content: '▸';
-      position: absolute;
-      left: 0;
-      color: var(--orange);
-      font-size: 0.65rem;
-      top: 0.35rem;
-    }
-
-    blockquote {
-      border-left: 2px solid var(--orange);
-      padding: 1rem 1.5rem;
-      margin: 2rem 0;
-      background: rgba(244,93,0,0.03);
-    }
-    blockquote p {
-      font-style: italic;
-      color: #b0aba4 !important;
-      font-size: 1.05rem !important;
-      margin: 0 !important;
-    }
-
-    /* FIGURES */
-    .fig-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--border);
-      margin: 2rem 0;
-    }
-    .fig-grid.single { grid-template-columns: 1fr; }
-    .fig-grid.three { grid-template-columns: 1fr 1fr 1fr; }
-
-    figure {
-      background: var(--surface);
-      overflow: hidden;
-      margin: 0;
-    }
-    figure img {
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
-      display: block;
-      filter: grayscale(15%);
-      transition: filter 0.35s, transform 0.4s;
-    }
-    figure img.tall { height: 360px; }
-    figure:hover img {
-      filter: grayscale(0%);
-      transform: scale(1.02);
-    }
-    figcaption {
-      padding: 0.75rem 1rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      border-top: 1px solid var(--border);
-    }
-
-    /* SKILLS CHIPS */
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .chip {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 0.3rem 0.75rem;
-    }
-
-    /* ASIDE CALLOUT */
-    .callout {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--orange);
-      padding: 1.5rem 2rem;
-      margin: 2rem 0;
-    }
-    .callout-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 0.75rem;
-    }
-    .callout p {
-      font-size: 1rem;
-      color: #b0aba4;
-      font-weight: 300;
-      line-height: 1.7;
-      margin: 0;
-    }
-
-    /* PROJECT NAV */
-    .project-nav {
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    .project-nav a {
-      padding: 2.5rem 3rem;
-      text-decoration: none;
-      color: var(--text);
-      transition: background 0.3s;
-      border-right: 1px solid var(--border);
-    }
-    .project-nav a:last-child { border-right: none; text-align: right; }
-    .project-nav a:hover { background: rgba(244,93,0,0.03); }
-    .pnav-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--orange);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    .pnav-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.5rem;
-      letter-spacing: 0.05em;
-    }
-
-    /* TIMELINE BAR */
-    .timeline-bar {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    .timeline-bar .tbar-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      white-space: nowrap;
-    }
-    .timeline-bar .tbar-line {
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-      position: relative;
-    }
-    .timeline-bar .tbar-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--orange);
-      flex-shrink: 0;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    @media (max-width: 900px) {
-      nav { padding: 1rem 1.5rem; }
-      .project-hero { padding: 8rem 1.5rem 3rem; }
-      .content-section { padding: 4rem 1.5rem; }
-      .two-col, .two-col-wide { grid-template-columns: 1fr; gap: 2.5rem; }
-      .fig-grid { grid-template-columns: 1fr; }
-      .fig-grid.three { grid-template-columns: 1fr; }
-      .project-nav { grid-template-columns: 1fr; }
-      .project-nav a { border-right: none; border-bottom: 1px solid var(--border); }
-      .project-nav a:last-child { text-align: left; }
-    }
-  </style>
-</head>
-<body>
-
-  <nav>
-    <a class="nav-logo" href="index.html">TP</a>
-    <a class="nav-back" href="index.html">← Back to Portfolio</a>
-  </nav>
-
-  <!-- HERO -->
-  <div class="project-hero">
-    <div class="project-eyebrow">Project 01 — Engineering Design</div>
-    <h1>Robot Arm<br><span>End-Effector</span></h1>
-    <div class="project-meta">
-      <div class="meta-item">
-        <label>Timeline</label>
-        <p>Oct 6 – Dec 5, 2025</p>
-      </div>
-      <div class="meta-item">
-        <label>Role</label>
-        <p>Project Manager & Designer</p>
-      </div>
-      <div class="meta-item">
-        <label>Skills</label>
-        <p>CAD · Python · 3D Printing · Project Management</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- OVERVIEW -->
-  <div class="content-section">
-    <div class="section-header reveal">
-      <span class="section-num">01</span>
-      <h2 class="section-title">Project Overview</h2>
-      <div class="section-line"></div>
-    </div>
-    <div class="two-col-wide reveal">
-      <div class="prose">
-        <p>The purpose of this project was to design a universal end-effector that can be used to grab, lift, and subsequently move objects of varying shape and dimensions to a different location. The end-effector was mounted to a <strong>Q-Arm</strong> and paired with a complete Python codebase for automated item purchase and retrieval.</p>
-
-        <div class="timeline-bar">
-          <span class="tbar-label">Oct 6, 2025</span>
-          <div class="tbar-line"></div>
-          <div class="tbar-dot"></div>
-          <div class="tbar-line"></div>
-          <span class="tbar-label">Dec 5, 2025</span>
+    <!-- HERO -->
+    <div class="project-hero">
+      <div class="project-eyebrow">Project 01 — Engineering Design</div>
+      <h1>Robot Arm<br /><span>End-Effector</span></h1>
+      <div class="project-meta">
+        <div class="meta-item">
+          <label>Timeline</label>
+          <p>Oct 6 – Dec 5, 2025</p>
         </div>
-
-        <h3>Added Constraints</h3>
-        <ul>
-          <li>Operate quickly and without wasted movements</li>
-          <li>Maximize operating speed</li>
-          <li>Total effector mass could not exceed 100 g</li>
-          <li>Minimize amount of material and fasteners used</li>
-          <li>Be able to pick up and transport all 6 items across the difficulty scale</li>
-        </ul>
-
-        <h3>Code Base Features</h3>
-        <ul>
-          <li>Allow user to create and authenticate credentials, securely stored as encrypted hash values</li>
-          <li>When a barcode is scanned, the program determines associated items and sends movement commands to the Q-Arm</li>
-          <li>Once the user finishes ordering, the program returns a full order summary</li>
-        </ul>
-      </div>
-      <div>
-        <div class="callout">
-          <div class="callout-label">Real World Application</div>
-          <p>Create a universal solution for use in an e-commerce warehouse — retrieving items from shelving and moving them onto a conveyor belt for shipping.</p>
+        <div class="meta-item">
+          <label>Role</label>
+          <p>Project Manager & Designer</p>
         </div>
-        <div class="fig-grid single" style="margin-top: 1.5rem;">
-          <figure>
-            <img src="Screenshot_2026-01-03_134040_1.png" alt="Exploded view of all end-effector parts" class="tall">
-            <figcaption>Figure 5 — Exploded view of all parts used</figcaption>
-          </figure>
+        <div class="meta-item">
+          <label>Skills</label>
+          <p>CAD · Python · 3D Printing · Project Management</p>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- PERSONAL CONTRIBUTIONS -->
-  <div class="content-section">
-    <div class="section-header reveal">
-      <span class="section-num">02</span>
-      <h2 class="section-title">Personal Contributions</h2>
-      <div class="section-line"></div>
+    <!-- OVERVIEW -->
+    <div class="content-section">
+      <div class="section-header reveal">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Project Overview</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="two-col-wide reveal">
+        <div class="prose">
+          <p>
+            The purpose of this project was to design a universal end-effector
+            that can be used to grab, lift, and subsequently move objects of
+            varying shape and dimensions to a different location. The
+            end-effector was mounted to a <strong>Q-Arm</strong> and paired with
+            a complete Python codebase for automated item purchase and
+            retrieval.
+          </p>
+
+          <div class="timeline-bar">
+            <span class="tbar-label">Oct 6, 2025</span>
+            <div class="tbar-line"></div>
+            <div class="tbar-dot"></div>
+            <div class="tbar-line"></div>
+            <span class="tbar-label">Dec 5, 2025</span>
+          </div>
+
+          <h3>Added Constraints</h3>
+          <ul>
+            <li>Operate quickly and without wasted movements</li>
+            <li>Maximize operating speed</li>
+            <li>Total effector mass could not exceed 100 g</li>
+            <li>Minimize amount of material and fasteners used</li>
+            <li>
+              Be able to pick up and transport all 6 items across the difficulty
+              scale
+            </li>
+          </ul>
+
+          <h3>Code Base Features</h3>
+          <ul>
+            <li>
+              Allow user to create and authenticate credentials, securely stored
+              as encrypted hash values
+            </li>
+            <li>
+              When a barcode is scanned, the program determines associated items
+              and sends movement commands to the Q-Arm
+            </li>
+            <li>
+              Once the user finishes ordering, the program returns a full order
+              summary
+            </li>
+          </ul>
+        </div>
+        <div>
+          <div class="callout">
+            <div class="callout-label">Real World Application</div>
+            <p>
+              Create a universal solution for use in an e-commerce warehouse —
+              retrieving items from shelving and moving them onto a conveyor
+              belt for shipping.
+            </p>
+          </div>
+          <div class="fig-grid single" style="margin-top: 1.5rem">
+            <figure>
+              <img
+                src="Screenshot_2026-01-03_134040_1.png"
+                alt="Exploded view of all end-effector parts"
+                class="tall"
+              />
+              <figcaption>
+                Figure 5 — Exploded view of all parts used
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="two-col reveal">
-      <div class="prose">
-        <p>I was the <strong>project manager</strong> for this project and oversaw the progress and completion of tasks and deliverables, while ensuring participation from all group members.</p>
 
+    <!-- PERSONAL CONTRIBUTIONS -->
+    <div class="content-section">
+      <div class="section-header reveal">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Personal Contributions</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="two-col reveal">
+        <div class="prose">
+          <p>
+            I was the <strong>project manager</strong> for this project and
+            oversaw the progress and completion of tasks and deliverables, while
+            ensuring participation from all group members.
+          </p>
+
+          <blockquote>
+            <p>
+              A tactic I found invaluable was to designate each team member as
+              the lead for a specific task — the CAD model, or programming the
+              Q-Arm. I took responsibility for integrating the different
+              elements together and ensuring all members understood the current
+              timeline.
+            </p>
+          </blockquote>
+
+          <h3>Project Management Skills Developed</h3>
+          <ul>
+            <li>Creating a GANTT chart</li>
+            <li>Planning and facilitating meetings</li>
+            <li>Resolving conflict between team members</li>
+            <li>Delegating work to group members</li>
+            <li>Ensuring tasks were completed on time</li>
+          </ul>
+        </div>
+        <div class="prose">
+          <h3>Python Programming</h3>
+          <p>
+            The program for the Q-Arm began with creating flow charts for all
+            individual tasks and the main menu. I personally created the flow
+            chart for the <strong>authenticate function</strong>, which verifies
+            user credentials against a file of encrypted entries.
+          </p>
+          <h3>I Learned</h3>
+          <ul>
+            <li>Programming functions in Python</li>
+            <li>Using the Bcrypt module to encrypt data as a hash value</li>
+            <li>Creating flow charts for functions and programs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESIGN PROCESS -->
+    <div class="content-section">
+      <div class="section-header reveal">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Design Process</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="two-col-wide reveal">
+        <div class="prose">
+          <p>
+            The design process began with each member creating a concept sketch
+            and CAD model. <strong>My design</strong> — using 2 arms linked by a
+            rack and pinion — was selected to proceed with.
+          </p>
+          <p>
+            A principle I implemented from the beginning was to
+            <strong>reduce the number of moving parts</strong>. As a team we
+            iterated on the initial design with two major modifications: fixing
+            one arm permanently, and hanging both arms downward at an angle. The
+            angle was calculated using trigonometry to be approximately
+            <strong>45 degrees</strong>.
+          </p>
+          <p>
+            I designated a member to be the CAD lead who drove development of
+            the 3D model from the approved design.
+          </p>
+        </div>
+        <div>
+          <div class="fig-grid" style="margin: 0">
+            <figure>
+              <img
+                src="IMG_E17861.jpg"
+                alt="Refined sketch design from top view with 2 moving arms"
+                class="tall"
+              />
+              <figcaption>
+                Figure 1 — Refined sketch, top view, dual-moving-arm concept
+                (Oct 18, 2025)
+              </figcaption>
+            </figure>
+            <figure>
+              <img
+                src="Picture1.png"
+                alt="CAD design for end effector with 2 moving arms"
+                class="tall"
+              />
+              <figcaption>
+                Figure 2 — Initial CAD model with 2 moving arms
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAD ITERATIONS -->
+    <div class="content-section">
+      <div class="section-header reveal">
+        <span class="section-num">04</span>
+        <h2 class="section-title">CAD Model & Iterations</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="prose reveal" style="max-width: 720px; margin-bottom: 3rem">
+        <p>
+          With the initial prototype, we found that the claw would pivot against
+          the edge of the mounting plate and slip off the gear due to the torque
+          of grabbed objects. We redesigned the gear with a
+          <strong>cap on top</strong> to maintain contact between the rack and
+          the pinion.
+        </p>
         <blockquote>
-          <p>A tactic I found invaluable was to designate each team member as the lead for a specific task — the CAD model, or programming the Q-Arm. I took responsibility for integrating the different elements together and ensuring all members understood the current timeline.</p>
+          <p>
+            This modification highlighted the importance of restricting the
+            degrees of freedom for parts.
+          </p>
         </blockquote>
-
-        <h3>Project Management Skills Developed</h3>
-        <ul>
-          <li>Creating a GANTT chart</li>
-          <li>Planning and facilitating meetings</li>
-          <li>Resolving conflict between team members</li>
-          <li>Delegating work to group members</li>
-          <li>Ensuring tasks were completed on time</li>
-        </ul>
+        <p>
+          We also added a <strong>conical section</strong> into both the fixed
+          and moving arms, ensuring a firmer grasp — this proved successful,
+          enabling us to pick up the cone object.
+        </p>
       </div>
-      <div class="prose">
-        <h3>Python Programming</h3>
-        <p>The program for the Q-Arm began with creating flow charts for all individual tasks and the main menu. I personally created the flow chart for the <strong>authenticate function</strong>, which verifies user credentials against a file of encrypted entries.</p>
-        <h3>I Learned</h3>
-        <ul>
-          <li>Programming functions in Python</li>
-          <li>Using the Bcrypt module to encrypt data as a hash value</li>
-          <li>Creating flow charts for functions and programs</li>
-        </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- DESIGN PROCESS -->
-  <div class="content-section">
-    <div class="section-header reveal">
-      <span class="section-num">03</span>
-      <h2 class="section-title">Design Process</h2>
-      <div class="section-line"></div>
-    </div>
-
-    <div class="two-col-wide reveal">
-      <div class="prose">
-        <p>The design process began with each member creating a concept sketch and CAD model. <strong>My design</strong> — using 2 arms linked by a rack and pinion — was selected to proceed with.</p>
-        <p>A principle I implemented from the beginning was to <strong>reduce the number of moving parts</strong>. As a team we iterated on the initial design with two major modifications: fixing one arm permanently, and hanging both arms downward at an angle. The angle was calculated using trigonometry to be approximately <strong>45 degrees</strong>.</p>
-        <p>I designated a member to be the CAD lead who drove development of the 3D model from the approved design.</p>
+      <div class="fig-grid three reveal">
+        <figure>
+          <img
+            src="Screenshot_2026-01-03_121759.png"
+            alt="Gear with restrictive plate on top"
+          />
+          <figcaption>
+            Figure 3 — Gear with restrictive cap to prevent rack slippage
+          </figcaption>
+        </figure>
+        <figure>
+          <img
+            src="Screenshot_2026-01-03_122049.png"
+            alt="Conical profile on claw"
+          />
+          <figcaption>
+            Figure 4 — Conical profile designed into the claw
+          </figcaption>
+        </figure>
+        <figure>
+          <img src="final_image.png" alt="Final CAD design screenshot" />
+          <figcaption>
+            Figure 6 — Final CAD design; white = team-designed, black = provided
+          </figcaption>
+        </figure>
       </div>
-      <div>
-        <div class="fig-grid" style="margin: 0;">
-          <figure>
-            <img src="IMG_E17861.jpg" alt="Refined sketch design from top view with 2 moving arms" class="tall">
-            <figcaption>Figure 1 — Refined sketch, top view, dual-moving-arm concept (Oct 18, 2025)</figcaption>
-          </figure>
-          <figure>
-            <img src="Picture1.png" alt="CAD design for end effector with 2 moving arms" class="tall">
-            <figcaption>Figure 2 — Initial CAD model with 2 moving arms</figcaption>
-          </figure>
+
+      <div class="two-col reveal" style="margin-top: 3rem">
+        <div class="prose">
+          <h3>Prototype Progression</h3>
+          <p>
+            In total we built <strong>4 prototypes</strong>. The first two
+            tested rack-and-pinion principles, iterating on degree-of-freedom
+            restrictions. The third was functional but heavy — the small motor
+            lacked enough torque. The fourth was an optimized version with less
+            material.
+          </p>
+          <h3>Optimized Areas</h3>
+          <ul>
+            <li>Gear cap profile — arcs cut into the top face</li>
+            <li>Thickness of the moving arm assembly</li>
+          </ul>
+          <blockquote>
+            <p>
+              A practice I learned: overbuild parts first, then optimize after
+              you get the product to function.
+            </p>
+          </blockquote>
+        </div>
+        <div class="prose">
+          <h3>Design Considerations</h3>
+          <p>
+            The <strong>fixed arm</strong> was intentionally left slightly
+            overbuilt. During testing, errors in Q-Arm manipulation caused the
+            effector to slam into the table; the overbuilt fixed arm transferred
+            force through the mounting plate rather than breaking. If it did
+            break, reprinting a single arm was far simpler than reprinting the
+            entire rack-and-pinion assembly.
+          </p>
+          <p>
+            We also split the <strong>moving arm into 2 pieces</strong>,
+            allowing one piece to be remade independently — this significantly
+            decreased prototype iteration time.
+          </p>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- CAD ITERATIONS -->
-  <div class="content-section">
-    <div class="section-header reveal">
-      <span class="section-num">04</span>
-      <h2 class="section-title">CAD Model & Iterations</h2>
-      <div class="section-line"></div>
-    </div>
-
-    <div class="prose reveal" style="max-width: 720px; margin-bottom: 3rem;">
-      <p>With the initial prototype, we found that the claw would pivot against the edge of the mounting plate and slip off the gear due to the torque of grabbed objects. We redesigned the gear with a <strong>cap on top</strong> to maintain contact between the rack and the pinion.</p>
-      <blockquote>
-        <p>This modification highlighted the importance of restricting the degrees of freedom for parts.</p>
-      </blockquote>
-      <p>We also added a <strong>conical section</strong> into both the fixed and moving arms, ensuring a firmer grasp — this proved successful, enabling us to pick up the cone object.</p>
-    </div>
-
-    <div class="fig-grid three reveal">
-      <figure>
-        <img src="Screenshot_2026-01-03_121759.png" alt="Gear with restrictive plate on top">
-        <figcaption>Figure 3 — Gear with restrictive cap to prevent rack slippage</figcaption>
-      </figure>
-      <figure>
-        <img src="Screenshot_2026-01-03_122049.png" alt="Conical profile on claw">
-        <figcaption>Figure 4 — Conical profile designed into the claw</figcaption>
-      </figure>
-      <figure>
-        <img src="final_image.png" alt="Final CAD design screenshot">
-        <figcaption>Figure 6 — Final CAD design; white = team-designed, black = provided</figcaption>
-      </figure>
-    </div>
-
-    <div class="two-col reveal" style="margin-top: 3rem;">
-      <div class="prose">
-        <h3>Prototype Progression</h3>
-        <p>In total we built <strong>4 prototypes</strong>. The first two tested rack-and-pinion principles, iterating on degree-of-freedom restrictions. The third was functional but heavy — the small motor lacked enough torque. The fourth was an optimized version with less material.</p>
-        <h3>Optimized Areas</h3>
-        <ul>
-          <li>Gear cap profile — arcs cut into the top face</li>
-          <li>Thickness of the moving arm assembly</li>
-        </ul>
-        <blockquote>
-          <p>A practice I learned: overbuild parts first, then optimize after you get the product to function.</p>
-        </blockquote>
+    <!-- REFLECTION -->
+    <div class="content-section">
+      <div class="section-header reveal">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Reflection</h2>
+        <div class="section-line"></div>
       </div>
-      <div class="prose">
-        <h3>Design Considerations</h3>
-        <p>The <strong>fixed arm</strong> was intentionally left slightly overbuilt. During testing, errors in Q-Arm manipulation caused the effector to slam into the table; the overbuilt fixed arm transferred force through the mounting plate rather than breaking. If it did break, reprinting a single arm was far simpler than reprinting the entire rack-and-pinion assembly.</p>
-        <p>We also split the <strong>moving arm into 2 pieces</strong>, allowing one piece to be remade independently — this significantly decreased prototype iteration time.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- REFLECTION -->
-  <div class="content-section">
-    <div class="section-header reveal">
-      <span class="section-num">05</span>
-      <h2 class="section-title">Reflection</h2>
-      <div class="section-line"></div>
-    </div>
-    <div class="two-col reveal">
-      <div class="prose">
-        <p>Many setbacks arose from overcomplicating elements of the task. My initial sketch had <strong>2 moving claws</strong>. A teammate pointed out we only needed one, which meant the full torque of the motor could press the object against the fixed claw. Initial testing confirmed the single claw was the right call.</p>
-        <blockquote>
-          <p>This reinforced the idea that the simplest solution is often the best solution.</p>
-        </blockquote>
-        <div class="chip-row">
-          <span class="chip">CAD Design</span>
-          <span class="chip">Python</span>
-          <span class="chip">3D Printing</span>
-          <span class="chip">Project Management</span>
-          <span class="chip">Rack & Pinion</span>
-          <span class="chip">Bcrypt / Encryption</span>
+      <div class="two-col reveal">
+        <div class="prose">
+          <p>
+            Many setbacks arose from overcomplicating elements of the task. My
+            initial sketch had <strong>2 moving claws</strong>. A teammate
+            pointed out we only needed one, which meant the full torque of the
+            motor could press the object against the fixed claw. Initial testing
+            confirmed the single claw was the right call.
+          </p>
+          <blockquote>
+            <p>
+              This reinforced the idea that the simplest solution is often the
+              best solution.
+            </p>
+          </blockquote>
+          <div class="chip-row">
+            <span class="chip">CAD Design</span>
+            <span class="chip">Python</span>
+            <span class="chip">3D Printing</span>
+            <span class="chip">Project Management</span>
+            <span class="chip">Rack & Pinion</span>
+            <span class="chip">Bcrypt / Encryption</span>
+          </div>
+        </div>
+        <div class="prose">
+          <p>
+            A personal shortcoming as a leader was failing to ensure
+            <strong>enough time for testing</strong>. We had one 2-hour in-class
+            period, but Q-Arm issues beyond our control left us only ~45 minutes
+            for full integration testing. This led to a failure on demonstration
+            day — which we fixed in under 60 seconds — but a mark deduction
+            nonetheless.
+          </p>
+          <p>
+            This project underscored the importance of time management and the
+            outsized role it plays in overall project success.
+          </p>
         </div>
       </div>
-      <div class="prose">
-        <p>A personal shortcoming as a leader was failing to ensure <strong>enough time for testing</strong>. We had one 2-hour in-class period, but Q-Arm issues beyond our control left us only ~45 minutes for full integration testing. This led to a failure on demonstration day — which we fixed in under 60 seconds — but a mark deduction nonetheless.</p>
-        <p>This project underscored the importance of time management and the outsized role it plays in overall project success.</p>
-      </div>
     </div>
-  </div>
 
-  <!-- PROJECT NAV -->
-  <div class="project-nav">
-    <a href="index.html">
-      <span class="pnav-label">← Back Home</span>
-      <span class="pnav-title">Portfolio</span>
-    </a>
-    <a href="highschool.html">
-      <span class="pnav-label">Next Project →</span>
-      <span class="pnav-title">High School Projects</span>
-    </a>
-  </div>
+    <!-- PROJECT NAV -->
+    <div class="project-nav">
+      <a href="index.html">
+        <span class="pnav-label">← Back Home</span>
+        <span class="pnav-title">Portfolio</span>
+      </a>
+      <a href="highschool.html">
+        <span class="pnav-label">Next Project →</span>
+        <span class="pnav-title">High School Projects</span>
+      </a>
+    </div>
 
-  <footer style="border-top: 1px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em;">© 2026 Tanmay Poddar</span>
-    <span style="font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em;">Project 1 Frst Year Enigneering</span>
-  </footer>
+    <footer
+      style="
+        border-top: 1px solid var(--border);
+        padding: 2rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      "
+    >
+      <span
+        style="
+          font-family: &quot;DM Mono&quot;, monospace;
+          font-size: 0.7rem;
+          color: var(--muted);
+          letter-spacing: 0.08em;
+        "
+        >© 2026 Tanmay Poddar</span
+      >
+      <span
+        style="
+          font-family: &quot;DM Mono&quot;, monospace;
+          font-size: 0.7rem;
+          color: var(--muted);
+          letter-spacing: 0.08em;
+        "
+        >Project 1 Frst Year Enigneering</span
+      >
+    </footer>
 
-  <script>
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
-      });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => observer.observe(el));
-  </script>
-</body>
+    <script>
+      const reveals = document.querySelectorAll(".reveal");
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+      reveals.forEach((el) => observer.observe(el));
+    </script>
+  </body>
 </html>

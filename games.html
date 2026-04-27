@@ -1,610 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Games — Tanmay Poddar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --orange: #F45D00;
-      --bg: #0d0d0d;
-      --surface: #141414;
-      --surface2: #1c1c1c;
-      --text: #f0ede8;
-      --muted: #7a7570;
-      --border: #2a2a2a;
-      --highlight: rgba(244, 93, 0, 0.08);
-      --highlight-strong: rgba(244, 93, 0, 0.18);
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Games — Tanmay Poddar</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./games.css" />
+  </head>
+  <body>
+    <nav>
+      <a class="nav-logo" href="index.html">Tanmay Poddar</a>
+      <ul class="nav-links">
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="games.html" class="active">Games</a></li>
+      </ul>
+    </nav>
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 18px;
-      line-height: 1.6;
-      overflow-x: hidden;
-      min-height: 100vh;
-    }
-
-    /* grain overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
-    }
-
-    /* ── NAV ─────────────────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.2rem 3rem;
-      border-bottom: 1px solid var(--border);
-      background: rgba(13,13,13,0.85);
-      backdrop-filter: blur(12px);
-    }
-    .nav-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.12em;
-      color: var(--orange);
-      text-decoration: none;
-    }
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-    .nav-links a {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover, .nav-links a.active { color: var(--orange); }
-
-    /* ── HERO ────────────────────────────────────────────────────── */
-    .hero {
-      padding-top: 8rem;
-      padding-bottom: 4rem;
-      padding-left: 3rem;
-      padding-right: 3rem;
-      border-bottom: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-      align-items: end;
-    }
-    .hero-left {}
-    .hero-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 1rem;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.1s forwards;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .hero-eyebrow::before {
-      content: '';
-      display: inline-block;
-      width: 1.5rem;
-      height: 1px;
-      background: var(--orange);
-    }
-    .hero-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(4.5rem, 9vw, 9rem);
-      line-height: 0.92;
-      letter-spacing: 0.02em;
-      opacity: 0;
-      animation: fadeUp 0.7s 0.2s forwards;
-    }
-    .hero-title span { color: var(--orange); }
-    .hero-right {
-      padding-bottom: 0.5rem;
-      opacity: 0;
-      animation: fadeUp 0.7s 0.35s forwards;
-    }
-    .hero-desc {
-      font-size: 1.05rem;
-      color: #b0aba4;
-      font-weight: 300;
-      font-style: italic;
-      line-height: 1.8;
-      margin-bottom: 1.5rem;
-      max-width: 380px;
-    }
-    .hero-meta {
-      display: flex;
-      gap: 2rem;
-    }
-    .hero-meta-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-    .hero-meta-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .hero-meta-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      color: var(--text);
-      line-height: 1;
-    }
-    .hero-meta-val span { color: var(--orange); }
-
-    /* ── FILTER BAR ──────────────────────────────────────────────── */
-    .filter-bar {
-      padding: 1.25rem 3rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: var(--surface);
-      opacity: 0;
-      animation: fadeUp 0.6s 0.45s forwards;
-    }
-    .filter-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-right: 0.5rem;
-      white-space: nowrap;
-    }
-    .filter-btn {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.4rem 0.9rem;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-    }
-    .filter-btn:hover { border-color: var(--orange); color: var(--orange); }
-    .filter-btn.active { border-color: var(--orange); color: var(--orange); background: var(--highlight); }
-
-    /* ── GAMES GRID ──────────────────────────────────────────────── */
-    .games-section {
-      padding: 3rem;
-    }
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1px;
-      border: 1px solid var(--border);
-      background: var(--border);
-    }
-
-    /* ── GAME CARD ───────────────────────────────────────────────── */
-    .game-card {
-      background: var(--surface);
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      transition: background 0.2s;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeUp 0.6s forwards;
-    }
-    .game-card:hover { background: var(--surface2); }
-    .game-card:hover .card-arrow { transform: translate(3px, -3px); opacity: 1; }
-    .game-card:hover .card-preview { opacity: 0.12; }
-
-    /* staggered animation for each card */
-    .game-card:nth-child(1) { animation-delay: 0.5s; }
-    .game-card:nth-child(2) { animation-delay: 0.6s; }
-    .game-card:nth-child(3) { animation-delay: 0.7s; }
-    .game-card:nth-child(4) { animation-delay: 0.8s; }
-    .game-card:nth-child(5) { animation-delay: 0.9s; }
-    .game-card:nth-child(6) { animation-delay: 1.0s; }
-
-    /* big background glyph */
-    .card-preview {
-      position: absolute;
-      right: 1rem;
-      bottom: -0.5rem;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 7rem;
-      color: var(--orange);
-      opacity: 0.06;
-      line-height: 1;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      user-select: none;
-    }
-
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .card-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--orange);
-      border: 1px solid rgba(244,93,0,0.3);
-      padding: 0.2rem 0.55rem;
-      background: rgba(244,93,0,0.05);
-    }
-    .card-status {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 0.2rem 0.55rem;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .card-status.live {
-      border-color: rgba(244,93,0,0.4);
-      color: var(--orange);
-      background: rgba(244,93,0,0.06);
-    }
-    .card-status.live::before {
-      content: '';
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--orange);
-      animation: pulse 2s infinite;
-      flex-shrink: 0;
-    }
-    .card-status.coming-soon {
-      border-color: var(--border);
-      color: var(--muted);
-    }
-    .card-status.coming-soon::before {
-      content: '○';
-      font-size: 0.55rem;
-    }
-
-    .card-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.4rem;
-      letter-spacing: 0.04em;
-      line-height: 1;
-      color: var(--text);
-    }
-    .card-desc {
-      font-size: 0.9rem;
-      color: #9a9490;
-      font-weight: 300;
-      font-style: italic;
-      line-height: 1.6;
-    }
-
-    .card-meta {
-      display: flex;
-      gap: 1.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--border);
-      margin-top: auto;
-    }
-    .card-meta-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-    }
-    .card-meta-key {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.5rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .card-meta-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
-      color: var(--text);
-      line-height: 1;
-    }
-
-    .card-cta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .card-play-btn {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.6rem 1.2rem;
-      border: 1px solid var(--orange);
-      background: transparent;
-      color: var(--orange);
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .card-play-btn:hover { background: var(--orange); color: var(--bg); }
-    .card-play-btn.disabled {
-      border-color: var(--border);
-      color: var(--muted);
-      cursor: default;
-      pointer-events: none;
-    }
-    .card-arrow {
-      font-size: 1.1rem;
-      color: var(--orange);
-      opacity: 0.4;
-      transition: transform 0.2s, opacity 0.2s;
-      line-height: 1;
-    }
-
-    /* coming soon overlay on card */
-    .game-card.soon {
-      cursor: default;
-    }
-    .game-card.soon:hover { background: var(--surface); }
-    .game-card.soon .card-title { color: var(--muted); }
-    .game-card.soon .card-preview { opacity: 0.03; }
-
-    /* ── COMING SOON PLACEHOLDER ─────────────────────────────────── */
-    .add-game-card {
-      background: transparent;
-      border: 1px dashed var(--border);
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      min-height: 220px;
-      opacity: 0;
-      animation: fadeUp 0.6s 1.1s forwards;
-    }
-    .add-game-icon {
-      font-size: 1.5rem;
-      color: var(--border);
-    }
-    .add-game-text {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--border);
-    }
-
-    /* ── STATS BAR ────────────────────────────────────────────────── */
-    .stats-strip {
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: stretch;
-      background: var(--surface);
-      margin-bottom: 0;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.5s forwards;
-    }
-    .strip-stat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1.5rem 1rem;
-      gap: 0.25rem;
-      border-right: 1px solid var(--border);
-    }
-    .strip-stat:last-child { border-right: none; }
-    .strip-stat-key {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .strip-stat-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem;
-      line-height: 1;
-      color: var(--text);
-    }
-    .strip-stat-val.accent { color: var(--orange); }
-
-    /* ── SECTION LABEL ───────────────────────────────────────────── */
-    .section-label-row {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--orange);
-    }
-    .section-count {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-    }
-
-    /* ── BACK BAR ────────────────────────────────────────────────── */
-    .back-bar {
-      border-top: 1px solid var(--border);
-      padding: 2rem 3rem;
-      display: flex;
-      justify-content: center;
-    }
-    .back-btn {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.85rem 2.5rem;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      text-decoration: none;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .back-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--highlight); }
-
-    /* ── FOOTER ──────────────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2rem 3rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    footer span {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
-
-    /* ── HIDDEN (filter) ─────────────────────────────────────────── */
-    .game-card[data-hidden="true"] {
-      display: none;
-    }
-
-    /* ── RESPONSIVE ──────────────────────────────────────────────── */
-    @media (max-width: 900px) {
-      nav { padding: 1rem 1.5rem; }
-      .nav-links { gap: 1.5rem; }
-      .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 2.5rem; gap: 1.5rem; }
-      .filter-bar { padding: 1rem 1.5rem; flex-wrap: wrap; }
-      .games-section { padding: 2rem 1.5rem; }
-      .stats-strip { display: none; }
-      footer { padding: 1.5rem; }
-    }
-    @media (max-width: 600px) {
-      .games-grid { grid-template-columns: 1fr; }
-      .hero-title { font-size: 4rem; }
-    }
-  </style>
-</head>
-<body>
-
-  <nav>
-    <a class="nav-logo" href="index.html">Tanmay Poddar</a>
-    <ul class="nav-links">
-      <li><a href="index.html#projects">Projects</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="index.html#contact">Contact</a></li>
-      <li><a href="games.html" class="active">Games</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-left">
-      <div class="hero-eyebrow">Interactive Experiences</div>
-      <h1 class="hero-title">Games<br><span>&amp; Puzzles</span></h1>
-    </div>
-    <div class="hero-right">
-      <p class="hero-desc">A collection of hand-built browser games and puzzles. No frameworks, no engines — just logic, math, and a lot of CSS.</p>
-    </div>
-  </div>
-
-  <!-- GAMES SECTION -->
-  <div class="games-section">
-    <div class="section-label-row">
-      <span class="section-label">All Games</span>
-      <span class="section-count" id="visible-count">— games</span>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-left">
+        <div class="hero-eyebrow">Interactive Experiences</div>
+        <h1 class="hero-title">Games<br /><span>&amp; Puzzles</span></h1>
+      </div>
+      <div class="hero-right">
+        <p class="hero-desc">
+          A collection of hand-built browser games and puzzles. No frameworks,
+          no engines — just logic, math, and a lot of CSS.
+        </p>
+      </div>
     </div>
 
-    <div class="games-grid" id="games-grid">
+    <!-- GAMES SECTION -->
+    <div class="games-section">
+      <div class="section-label-row">
+        <span class="section-label">All Games</span>
+        <span class="section-count" id="visible-count">— games</span>
+      </div>
 
-      <!-- SUDOKU — LIVE -->
-      <a class="game-card" href="sudoku.html" data-tags="puzzle live" data-status="live">
-        <div class="card-preview">9×9</div>
-        <div class="card-top">
-          <span class="card-tag">Puzzle</span>
-          <span class="card-status live">Live</span>
-        </div>
-        <div class="card-title">Sudoku</div>
-        <p class="card-desc">Fill the 9×9 grid so every row, column, and 3×3 box contains 1–9. Three difficulties, pencil notes, daily challenge, and a leaderboard.</p>
-        <div class="card-meta">
-          <div class="card-meta-item">
-            <span class="card-meta-key">Difficulties</span>
-            <span class="card-meta-val">3</span>
+      <div class="games-grid" id="games-grid">
+        <!-- SUDOKU — LIVE -->
+        <a
+          class="game-card"
+          href="sudoku.html"
+          data-tags="puzzle live"
+          data-status="live"
+        >
+          <div class="card-preview">9×9</div>
+          <div class="card-top">
+            <span class="card-tag">Puzzle</span>
+            <span class="card-status live">Live</span>
           </div>
-          <div class="card-meta-item">
-            <span class="card-meta-key">Daily Mode</span>
-            <span class="card-meta-val">Yes</span>
+          <div class="card-title">Sudoku</div>
+          <p class="card-desc">
+            Fill the 9×9 grid so every row, column, and 3×3 box contains 1–9.
+            Three difficulties, pencil notes, daily challenge, and a
+            leaderboard.
+          </p>
+          <div class="card-meta">
+            <div class="card-meta-item">
+              <span class="card-meta-key">Difficulties</span>
+              <span class="card-meta-val">3</span>
+            </div>
+            <div class="card-meta-item">
+              <span class="card-meta-key">Daily Mode</span>
+              <span class="card-meta-val">Yes</span>
+            </div>
           </div>
-        </div>
-        <div class="card-cta">
-          <button class="card-play-btn">Play Now ▶</button>
-          <span class="card-arrow">↗</span>
-        </div>
-      </a>
-
+          <div class="card-cta">
+            <button class="card-play-btn">Play Now ▶</button>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+      </div>
     </div>
-  </div>
 
-  <div class="back-bar">
-    <a class="back-btn" href="index.html">← Back to Main</a>
-  </div>
+    <div class="back-bar">
+      <a class="back-btn" href="index.html">← Back to Main</a>
+    </div>
 
-  <footer>
-    <span>2026 Tanmay Poddar</span>
-    <span>Toronto, Canada</span>
-  </footer>
+    <footer>
+      <span>2026 Tanmay Poddar</span>
+      <span>Toronto, Canada</span>
+    </footer>
 
-  <script>
-    // section count
-    const cards = document.querySelectorAll('.game-card');
-    const countEl = document.getElementById('visible-count');
-    countEl.textContent = `${cards.length} game${cards.length !== 1 ? 's' : ''}`;
-  </script>
-
-</body>
+    <script>
+      // section count
+      const cards = document.querySelectorAll(".game-card");
+      const countEl = document.getElementById("visible-count");
+      countEl.textContent = `${cards.length} game${cards.length !== 1 ? "s" : ""}`;
+    </script>
+  </body>
 </html>

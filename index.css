@@ -1,0 +1,521 @@
+:root {
+  --orange: #f45d00;
+  --bg: #0d0d0d;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --text: #f0ede8;
+  --muted: #7a7570;
+  --border: #2a2a2a;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 3rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(13, 13, 13, 0.85);
+  backdrop-filter: blur(12px);
+}
+.nav-logo {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.12em;
+  color: var(--orange);
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover {
+  color: var(--orange);
+}
+
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 8rem 3rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: "Tanmay Poddar";
+  position: absolute;
+  right: -0.05em;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 32vw;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244, 93, 0, 0.07);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+.hero-label {
+  font-family: "DM Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+.hero-title {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(4rem, 8vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+.hero-title span {
+  color: var(--orange);
+}
+.hero-desc {
+  font-size: 1.15rem;
+  color: #b0aba4;
+  font-weight: 300;
+  font-style: italic;
+  max-width: 440px;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+.hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.hero-meta span {
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.hero-meta a {
+  color: var(--orange);
+  text-decoration: none;
+}
+.hero-cta {
+  margin-top: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 0.85rem 1.8rem;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+  opacity: 0;
+  animation: fadeUp 0.8s 1s forwards;
+}
+.hero-cta:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.hero-cta::after {
+  content: "↓";
+  font-size: 1rem;
+}
+.hero-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.hero-card {
+  border: 1px solid var(--border);
+  padding: 2rem;
+  background: var(--surface);
+  max-width: 320px;
+  width: 100%;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+.hero-card-label {
+  font-family: "DM Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1rem;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child {
+  border-bottom: none;
+}
+.stat-num {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2.5rem;
+  color: var(--orange);
+  line-height: 1;
+}
+.stat-label {
+  font-family: "DM Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-align: right;
+  max-width: 130px;
+}
+
+section {
+  padding: 7rem 3rem;
+}
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+.section-num {
+  font-family: "DM Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--orange);
+  letter-spacing: 0.1em;
+}
+.section-title {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+#projects {
+  background: var(--bg);
+}
+.project-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+}
+.project-card {
+  background: var(--surface);
+  padding: 3rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.project-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--orange);
+  transform: scaleY(0);
+  transition: transform 0.3s;
+  transform-origin: bottom;
+}
+.project-card:hover {
+  background: var(--surface2);
+}
+.project-card:hover::before {
+  transform: scaleY(1);
+}
+.project-tag {
+  font-family: "DM Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 0.75rem;
+}
+.project-title {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.project-desc {
+  color: #9a9490;
+  font-size: 0.95rem;
+  font-weight: 300;
+  max-width: 600px;
+  line-height: 1.7;
+}
+.project-arrow {
+  font-family: "DM Mono", monospace;
+  font-size: 1.5rem;
+  color: var(--muted);
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  margin-top: 0.5rem;
+}
+.project-card:hover .project-arrow {
+  color: var(--orange);
+  transform: translate(4px, -4px);
+}
+.project-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.skill-chip {
+  font-family: "DM Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+#about {
+  background: var(--surface);
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+.about-text p {
+  color: #b0aba4;
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+.about-text p strong {
+  color: var(--text);
+  font-weight: 400;
+}
+.about-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.detail-key {
+  font-family: "DM Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.detail-val {
+  font-size: 0.95rem;
+  color: var(--text);
+  text-align: right;
+}
+.detail-val a {
+  color: var(--orange);
+  text-decoration: none;
+}
+.about-cta {
+  margin-top: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange);
+  text-decoration: none;
+  border: 1px solid var(--orange);
+  padding: 0.75rem 1.5rem;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.about-cta:hover {
+  background: var(--orange);
+  color: var(--bg);
+}
+
+#contact {
+  background: var(--bg);
+}
+.contact-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+.contact-big {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+.contact-big span {
+  color: var(--orange);
+}
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.contact-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+  font-family: "DM Mono", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+}
+.contact-link:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(244, 93, 0, 0.04);
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer span {
+  font-family: "DM Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  nav {
+    padding: 1rem 1.5rem;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 7rem 1.5rem 4rem;
+  }
+  .hero-right {
+    display: none;
+  }
+  section {
+    padding: 5rem 1.5rem;
+  }
+  .about-grid,
+  .contact-inner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .project-card {
+    grid-template-columns: 1fr;
+  }
+  footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
