@@ -16,7 +16,7 @@
       --border: #2a2a2a;
       --highlight: rgba(244, 93, 0, 0.08);
       --highlight-strong: rgba(244, 93, 0, 0.18);
-      --cell-size: 56px;
+      --cell-size: 68px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,7 +77,7 @@
       padding-top: 5rem;
       min-height: 70vh;
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 260px 1fr 260px;
       gap: 3rem;
       align-items: start;
       padding-left: 3rem;
@@ -107,7 +107,6 @@
       color: #b0aba4;
       font-weight: 300;
       font-style: italic;
-      max-width: 280px;
       opacity: 0;
       animation: fadeUp 0.8s 0.4s forwards;
     }
@@ -166,7 +165,6 @@
       justify-content: space-between;
       gap: 1rem;
       width: 100%;
-      max-width: 240px;
     }
     .action-btn:hover { border-color: var(--orange); color: var(--orange); }
     .action-btn.primary { border-color: var(--orange); color: var(--orange); }
@@ -176,7 +174,6 @@
       border: 1px solid var(--border);
       background: var(--surface);
       padding: 1.5rem;
-      max-width: 240px;
       opacity: 0;
       animation: fadeUp 0.8s 0.7s forwards;
     }
@@ -209,14 +206,13 @@
       color: var(--text);
       line-height: 1;
     }
-    #timer-display { color: var(--orange); }
-
     /* CENTER BOARD */
     .board-wrap {
       padding-top: 4rem;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-self: center;
       gap: 1rem;
       opacity: 0;
       animation: fadeUp 0.8s 0.4s forwards;
@@ -288,9 +284,7 @@
       align-items: center;
       justify-content: center;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      letter-spacing: 0.02em;
-      color: var(--text);
+      font-size: 1.9rem;
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
       position: relative;
@@ -298,7 +292,7 @@
       border: none;
       outline: none;
     }
-    .cell.given { color: var(--orange); cursor: default; font-size: 1.7rem; }
+    .cell.given { color: var(--orange); cursor: default; font-size: 2rem; }
     .cell.selected { background: var(--highlight-strong) !important; z-index: 1; }
     .cell.highlighted { background: var(--highlight); }
     .cell.same-num { background: rgba(244, 93, 0, 0.12); }
@@ -307,13 +301,70 @@
     .cell.user-filled {
       color: rgba(244, 93, 0, 0.82);
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
+      font-size: 1.9rem;
     }
     .cell.hint-filled {
       color: rgba(244, 93, 0, 0.45);
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
+      font-size: 1.9rem;
     }
+
+    /* PENCIL NOTES */
+    .cell-notes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      width: 100%;
+      height: 100%;
+      padding: 4px;
+      position: absolute;
+      inset: 0;
+    }
+    .note-digit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.46rem;
+      color: transparent;
+      line-height: 1;
+      font-weight: 500;
+      transition: color 0.1s;
+    }
+    .note-digit.set { color: rgba(176, 171, 164, 0.75); }
+    .cell.selected .note-digit.set { color: rgba(244, 93, 0, 0.85); }
+    .cell.highlighted .note-digit.set { color: rgba(176, 171, 164, 0.9); }
+
+    /* NOTES TOGGLE ROW */
+    .notes-toggle-row {
+      width: calc(var(--cell-size) * 9 + 8px);
+      display: flex;
+    }
+    .notes-toggle-btn {
+      flex: 1;
+      height: 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .notes-toggle-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--highlight); }
+    .notes-toggle-btn.active {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--highlight-strong);
+    }
+    /* Pulse the pencil icon when notes mode is on */
+    .notes-toggle-btn.active .notes-icon { animation: pulse 1.8s infinite; display: inline-block; }
 
     /* START OVERLAY — sits on top of the board */
     .start-overlay {
@@ -374,12 +425,12 @@
       width: calc(var(--cell-size) * 9 + 8px);
     }
     .num-btn {
-      height: 42px;
+      height: 52px;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
       display: flex;
@@ -387,6 +438,43 @@
       justify-content: center;
     }
     .num-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--highlight); }
+
+    /* STATS BAR — sits below numpad, same width as board */
+    .board-stats-bar {
+      display: flex;
+      align-items: center;
+      width: calc(var(--cell-size) * 9 + 8px);
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .board-stat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.6rem 0;
+      gap: 0.1rem;
+    }
+    .board-stat-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .board-stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: var(--text);
+    }
+    #timer-display { color: var(--orange); }
+    .board-stat-divider {
+      width: 1px;
+      height: 2rem;
+      background: var(--border);
+      flex-shrink: 0;
+    }
     .num-btn.complete {
       color: var(--muted);
       border-color: var(--border);
@@ -615,7 +703,6 @@
       border: 1px solid var(--orange);
       background: linear-gradient(135deg, rgba(244,93,0,0.10) 0%, rgba(244,93,0,0.03) 100%);
       padding: 1rem 1.25rem;
-      max-width: 240px;
       position: relative;
       overflow: hidden;
       opacity: 0;
@@ -695,7 +782,6 @@
       border: 1px solid var(--border);
       background: var(--surface);
       padding: 1rem 1.25rem;
-      max-width: 240px;
       opacity: 0;
       animation: fadeUp 0.8s 0.65s forwards;
     }
@@ -1036,21 +1122,6 @@
         <div class="hint-message" id="hint-message"></div>
       </div>
 
-      <div class="stats-card">
-        <div class="stats-card-label">Session</div>
-        <div class="stat-item">
-          <span class="stat-item-key">Time</span>
-          <span class="stat-item-val" id="timer-display">00:00</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-item-key">Errors</span>
-          <span class="stat-item-val" id="error-display">0</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-item-key">Filled</span>
-          <span class="stat-item-val" id="filled-display">0/81</span>
-        </div>
-      </div>
     </div>
 
     <!-- CENTER BOARD -->
@@ -1073,7 +1144,32 @@
         </div>
       </div>
 
+      <!-- Notes mode toggle — sits between board and numpad -->
+      <div class="notes-toggle-row">
+        <button class="notes-toggle-btn" id="notes-toggle-btn">
+          <span class="notes-icon">✎</span> Notes Mode — <span id="notes-mode-label">Off</span>
+        </button>
+      </div>
+
       <div class="numpad" id="numpad"></div>
+
+      <!-- Stats bar — sits right below the numpad -->
+      <div class="board-stats-bar">
+        <div class="board-stat">
+          <span class="board-stat-key">Time</span>
+          <span class="board-stat-val" id="timer-display">00:00</span>
+        </div>
+        <div class="board-stat-divider"></div>
+        <div class="board-stat">
+          <span class="board-stat-key">Errors</span>
+          <span class="board-stat-val" id="error-display">0</span>
+        </div>
+        <div class="board-stat-divider"></div>
+        <div class="board-stat">
+          <span class="board-stat-key">Filled</span>
+          <span class="board-stat-val" id="filled-display">0/81</span>
+        </div>
+      </div>
     </div>
 
     </div>
@@ -1100,6 +1196,7 @@
         <li>Arrow keys navigate between cells.</li>
         <li>Number keys 1–9 fill the selected cell.</li>
         <li>Backspace or Delete clears a cell.</li>
+        <li>Press N or click Notes Mode to toggle pencil-note mode — numbers annotate candidates without committing a value.</li>
         <li>Daily Challenge resets every day with a new seeded puzzle.</li>
         <li>Everyone playing on the same day gets the exact same Daily puzzle.</li>
         <li>Submit your time to the leaderboard after completing the daily.</li>
@@ -1374,6 +1471,8 @@
     let puzzle       = [];
     let userBoard    = [];
     let hintBoard    = [];   // tracks which cells were hint-filled
+    let notesBoard   = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+    let notesMode    = false;
     let selectedCell = null;
     let errors       = 0;
     let hintsUsed    = 0;
@@ -1410,6 +1509,17 @@
               if (userBoard[r][c] !== solution[r][c]) cell.classList.add('error');
             }
             cell.textContent = userBoard[r][c];
+          } else if (notesBoard[r][c].size > 0) {
+            // Render pencil notes as a 3×3 mini-grid
+            const notesEl = document.createElement('div');
+            notesEl.className = 'cell-notes';
+            for (let n = 1; n <= 9; n++) {
+              const nd = document.createElement('div');
+              nd.className = 'note-digit' + (notesBoard[r][c].has(n) ? ' set' : '');
+              nd.textContent = n;
+              notesEl.appendChild(nd);
+            }
+            cell.appendChild(notesEl);
           }
           cell.addEventListener('click', () => selectCell(r, c));
           boardEl.appendChild(cell);
@@ -1506,8 +1616,26 @@
       const [r, c] = selectedCell;
       if (puzzle[r][c] !== 0) return;
       if (hintBoard[r][c]) return; // can't overwrite a hint cell
+
+      // ── NOTES MODE ──────────────────────────────────────────────────────────
+      if (notesMode && num !== 0) {
+        // Can't annotate a cell that already has a confirmed value
+        if (userBoard[r][c] !== 0) return;
+        if (notesBoard[r][c].has(num)) {
+          notesBoard[r][c].delete(num);
+        } else {
+          notesBoard[r][c].add(num);
+        }
+        renderBoard();
+        updateHighlights();
+        return;
+      }
+
+      // ── NORMAL MODE ──────────────────────────────────────────────────────────
       const prev = userBoard[r][c];
       userBoard[r][c] = num;
+      // Clear any pencil notes for this cell once a real value is committed
+      if (num !== 0) notesBoard[r][c].clear();
       // Only count a NEW wrong entry as an error (not re-entering the same wrong one)
       if (num !== 0 && num !== solution[r][c] && prev !== num) errors++;
       renderBoard();
@@ -1518,6 +1646,7 @@
 
     document.addEventListener('keydown', (e) => {
       if (!started || paused) return;
+      if (e.key === 'n' || e.key === 'N') { toggleNotesMode(); return; }
       if (e.key >= '1' && e.key <= '9') enterNumber(parseInt(e.key));
       if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') enterNumber(0);
       if (!selectedCell) return;
@@ -1595,6 +1724,8 @@
       puzzle       = createPuzzle(solution, currentDiff);
       userBoard    = Array.from({ length: 9 }, () => Array(9).fill(0));
       hintBoard    = Array.from({ length: 9 }, () => Array(9).fill(false));
+      notesBoard   = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+      notesMode    = false;
       selectedCell = null;
       errors       = 0;
       hintsUsed    = 0;
@@ -1606,6 +1737,7 @@
       resetTimer();
       renderBoard();
       renderHintTokens();
+      updateNotesToggleBtn();
 
       document.getElementById('hint-message').textContent = '';
       document.getElementById('hint-message').className = 'hint-message';
@@ -1631,6 +1763,8 @@
       puzzle       = createPuzzleSeeded(solution, 'medium', rng);
       userBoard    = Array.from({ length: 9 }, () => Array(9).fill(0));
       hintBoard    = Array.from({ length: 9 }, () => Array(9).fill(false));
+      notesBoard   = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+      notesMode    = false;
       selectedCell = null;
       errors       = 0;
       hintsUsed    = 0;
@@ -1646,6 +1780,7 @@
       resetTimer();
       renderBoard();
       renderHintTokens();
+      updateNotesToggleBtn();
 
       document.getElementById('hint-message').textContent = 'Daily puzzle — same board for everyone today!';
       document.getElementById('hint-message').className = 'hint-message good';
@@ -1782,6 +1917,26 @@
       return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
     }
 
+    // ─── NOTES MODE ───────────────────────────────────────────────────────────
+
+    function toggleNotesMode() {
+      if (!gameActive || !started) return;
+      notesMode = !notesMode;
+      updateNotesToggleBtn();
+    }
+
+    function updateNotesToggleBtn() {
+      const btn   = document.getElementById('notes-toggle-btn');
+      const label = document.getElementById('notes-mode-label');
+      if (notesMode) {
+        btn.classList.add('active');
+        label.textContent = 'On';
+      } else {
+        btn.classList.remove('active');
+        label.textContent = 'Off';
+      }
+    }
+
     // ─── EVENT LISTENERS ──────────────────────────────────────────────────────
 
     document.getElementById('start-btn').addEventListener('click', startGame);
@@ -1794,6 +1949,7 @@
     document.getElementById('win-new-btn').addEventListener('click', newGame);
     document.getElementById('daily-btn').addEventListener('click', startDailyChallenge);
     document.getElementById('lb-submit-btn').addEventListener('click', submitLeaderboardEntry);
+    document.getElementById('notes-toggle-btn').addEventListener('click', toggleNotesMode);
     document.getElementById('lb-name-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') submitLeaderboardEntry();
     });
