@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>2048 — Tanmay Poddar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #F45D00;
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --surface2: #1c1c1c;
+      --text: #f0ede8;
+      --muted: #7a7570;
+      --border: #2a2a2a;
+      --highlight: rgba(244, 93, 0, 0.08);
+      --highlight-strong: rgba(244, 93, 0, 0.18);
+      --board-size: 420px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.12em;
+      color: var(--orange);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--orange); }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────────── */
+    main {
+      padding-top: 5rem;
+      min-height: 70vh;
+      display: grid;
+      grid-template-columns: 260px 1fr 260px;
+      gap: 3rem;
+      align-items: start;
+      padding-left: 3rem;
+      padding-right: 3rem;
+      padding-bottom: 4rem;
+    }
+
+    /* ── LEFT PANEL ──────────────────────────────────────────────── */
+    .left-panel {
+      padding-top: 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 6vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.3s forwards;
+    }
+    .page-title span { color: var(--orange); }
+
+    .page-desc {
+      font-size: 1rem;
+      color: #b0aba4;
+      font-weight: 300;
+      font-style: italic;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+    .action-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 1.5rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      width: 100%;
+    }
+    .action-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .action-btn.primary { border-color: var(--orange); color: var(--orange); }
+    .action-btn.primary:hover { background: var(--orange); color: var(--bg); }
+    .action-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+    .stats-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+    .stats-card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 1rem;
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-bottom: none; }
+    .stat-item-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .stat-item-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--text);
+      line-height: 1;
+    }
+    .stat-item-val.accent { color: var(--orange); }
+
+    /* ── BOARD WRAP ──────────────────────────────────────────────── */
+    .board-wrap {
+      padding-top: 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-self: center;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .board-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: var(--board-size);
+    }
+    .board-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .board-status.win  { color: var(--orange); }
+    .board-status.over { color: #e03030; }
+
+    /* score strip above board */
+    .score-strip {
+      display: flex;
+      width: var(--board-size);
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .score-cell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.6rem 0;
+      gap: 0.1rem;
+    }
+    .score-cell + .score-cell { border-left: 1px solid var(--border); }
+    .score-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .score-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      line-height: 1;
+      color: var(--text);
+      transition: color 0.2s;
+    }
+    #score-display { color: var(--orange); }
+
+    /* ── GAME BOARD ──────────────────────────────────────────────── */
+    .board-relative { position: relative; }
+
+    #game-board {
+      width: var(--board-size);
+      height: var(--board-size);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      background: var(--border);
+      border: 2px solid var(--orange);
+      padding: 8px;
+      position: relative;
+    }
+
+    /* empty cell slots */
+    .cell-slot {
+      background: var(--surface);
+      border-radius: 0;
+    }
+
+    /* tiles sit in a position:absolute layer on top */
+    #tile-layer {
+      position: absolute;
+      inset: 8px; /* match padding */
+      pointer-events: none;
+    }
+
+    .tile {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-weight: 400;
+      border-radius: 0;
+      transition: left 0.1s ease, top 0.1s ease, background 0.15s;
+      z-index: 2;
+    }
+
+    /* tile sizes — fit within board */
+    .tile { font-size: 2.2rem; }
+    .tile[data-value="128"],
+    .tile[data-value="256"],
+    .tile[data-value="512"]  { font-size: 1.9rem; }
+    .tile[data-value="1024"],
+    .tile[data-value="2048"] { font-size: 1.5rem; }
+    .tile[data-value="4096"],
+    .tile[data-value="8192"] { font-size: 1.3rem; }
+    .tile[data-value="16384"]{ font-size: 1.1rem; }
+
+    /* tile palette — dark theme using orange accent family */
+    .tile[data-value="2"]    { background: #1a1a1a; color: var(--text); }
+    .tile[data-value="4"]    { background: #222222; color: var(--text); }
+    .tile[data-value="8"]    { background: rgba(244,93,0,0.18); color: var(--orange); border: 1px solid rgba(244,93,0,0.3); }
+    .tile[data-value="16"]   { background: rgba(244,93,0,0.28); color: var(--orange); border: 1px solid rgba(244,93,0,0.45); }
+    .tile[data-value="32"]   { background: rgba(244,93,0,0.42); color: #fff; }
+    .tile[data-value="64"]   { background: rgba(244,93,0,0.62); color: #fff; }
+    .tile[data-value="128"]  { background: #c94b00; color: #fff; }
+    .tile[data-value="256"]  { background: #d95200; color: #fff; }
+    .tile[data-value="512"]  { background: #e85900; color: #fff; }
+    .tile[data-value="1024"] { background: #F45D00; color: var(--bg); }
+    .tile[data-value="2048"] {
+      background: #F45D00;
+      color: var(--bg);
+      box-shadow: 0 0 24px rgba(244,93,0,0.55), 0 0 6px rgba(244,93,0,0.35);
+    }
+    .tile[data-value="4096"] { background: #f8ede0; color: var(--bg); }
+    .tile[data-value="8192"] { background: #fff4ec; color: var(--bg); }
+
+    @keyframes tileAppear {
+      0%   { transform: scale(0.4); opacity: 0; }
+      60%  { transform: scale(1.08); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes tileMerge {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+    .tile.new    { animation: tileAppear 0.18s ease forwards; }
+    .tile.merged { animation: tileMerge  0.18s ease forwards; }
+
+    /* stats bar below board */
+    .board-stats-bar {
+      display: flex;
+      align-items: center;
+      width: var(--board-size);
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .board-stat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.6rem 0;
+      gap: 0.1rem;
+    }
+    .board-stat-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .board-stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: var(--text);
+    }
+    .board-stat-divider {
+      width: 1px;
+      height: 2rem;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── RIGHT PANEL ─────────────────────────────────────────────── */
+    .right-panel {
+      padding-top: 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .rules-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.9s forwards;
+    }
+    .rules-toggle {
+      width: 100%;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .rules-toggle:hover .rules-title { color: var(--orange); }
+    .rules-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .rules-chevron {
+      font-size: 0.75rem;
+      color: var(--muted);
+      transition: transform 0.3s;
+      display: inline-block;
+    }
+    .rules-card.open .rules-chevron { transform: rotate(180deg); }
+    .rules-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 1.5rem;
+    }
+    .rules-card.open .rules-body { max-height: 500px; padding: 0 1.5rem 1.25rem; }
+    .rules-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .rules-list li {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      line-height: 1.6;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .rules-list li::before { content: '—'; position: absolute; left: 0; color: var(--orange); }
+
+    /* tile legend card */
+    .legend-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.0s forwards;
+    }
+    .legend-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 1rem;
+    }
+    .legend-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .legend-swatch {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.65rem;
+    }
+    .legend-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── WIN / OVER OVERLAYS ─────────────────────────────────────── */
+    .full-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13,13,13,0.92);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+      backdrop-filter: blur(8px);
+    }
+    .full-overlay.show { opacity: 1; pointer-events: all; }
+    .overlay-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 10vw, 9rem);
+      letter-spacing: 0.05em;
+      color: var(--text);
+      line-height: 1;
+      text-align: center;
+    }
+    .overlay-title span { color: var(--orange); }
+    .overlay-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+    }
+    .overlay-score {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .overlay-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      border: 1px solid var(--orange);
+      background: transparent;
+      color: var(--orange);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .overlay-btn:hover { background: var(--orange); color: var(--bg); }
+    .overlay-btn.secondary {
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .overlay-btn.secondary:hover { border-color: var(--orange); color: var(--orange); background: transparent; }
+    .overlay-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+    /* ── BOTTOM SECTION ──────────────────────────────────────────── */
+    .bottom-section {
+      border-top: 1px solid var(--border);
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .bottom-section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 0.75rem;
+    }
+    .bottom-rules-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem 2rem;
+      margin-top: 0.25rem;
+    }
+    .bottom-rules-list li {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      line-height: 1.6;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+    .bottom-rules-list li::before { content: '—'; position: absolute; left: 0; color: var(--orange); }
+
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    .back-bar {
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: center;
+    }
+    .back-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 2.5rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .back-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--highlight); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ── SWIPE HINT ──────────────────────────────────────────────── */
+    .swipe-hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--border);
+      text-align: center;
+      display: none;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      :root { --board-size: 360px; }
+      main { grid-template-columns: 1fr; padding: 1.5rem; padding-top: 5rem; }
+      .left-panel, .right-panel { padding-top: 1rem; }
+      .page-title { font-size: 3rem; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.5rem; }
+      .bottom-section { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.5rem; }
+      .bottom-rules-list { grid-template-columns: 1fr; }
+      .swipe-hint { display: block; }
+    }
+    @media (max-width: 500px) {
+      :root { --board-size: min(92vw, 360px); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">Tanmay Poddar</a>
+    <ul class="nav-links">
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="games.html" class="active">Games</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="left-panel">
+      <h1 class="page-title">20<span>48</span></h1>
+      <p class="page-desc">Slide the tiles. Merge the numbers. Reach 2048 — or go beyond.</p>
+
+      <div class="action-group">
+        <button class="action-btn primary" id="new-game-btn">New Game <span>↻</span></button>
+        <button class="action-btn" id="undo-btn">Undo Move <span>⟵</span></button>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-card-label">Session</div>
+        <div class="stat-item">
+          <span class="stat-item-key">Score</span>
+          <span class="stat-item-val accent" id="left-score">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item-key">Best</span>
+          <span class="stat-item-val" id="left-best">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item-key">Moves</span>
+          <span class="stat-item-val" id="left-moves">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item-key">Highest Tile</span>
+          <span class="stat-item-val" id="left-highest">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CENTER BOARD ── -->
+    <div class="board-wrap">
+
+      <div class="board-controls">
+        <span class="board-status" id="board-status">Ready</span>
+      </div>
+
+      <div class="score-strip">
+        <div class="score-cell">
+          <span class="score-key">Score</span>
+          <span class="score-val" id="score-display">0</span>
+        </div>
+        <div class="score-cell">
+          <span class="score-key">Best</span>
+          <span class="score-val" id="best-display">0</span>
+        </div>
+        <div class="score-cell">
+          <span class="score-key">Moves</span>
+          <span class="score-val" id="moves-display">0</span>
+        </div>
+      </div>
+
+      <div class="board-relative">
+        <div id="game-board">
+          <!-- 16 empty slots rendered by JS -->
+        </div>
+        <div id="tile-layer"></div>
+      </div>
+
+      <div class="board-stats-bar">
+        <div class="board-stat">
+          <span class="board-stat-key">Highest</span>
+          <span class="board-stat-val" id="highest-display">—</span>
+        </div>
+        <div class="board-stat-divider"></div>
+        <div class="board-stat">
+          <span class="board-stat-key">Undos Left</span>
+          <span class="board-stat-val" id="undo-display">5</span>
+        </div>
+        <div class="board-stat-divider"></div>
+        <div class="board-stat">
+          <span class="board-stat-key">Tiles</span>
+          <span class="board-stat-val" id="tiles-display">2</span>
+        </div>
+      </div>
+
+      <div class="swipe-hint">Swipe or use arrow keys to move tiles</div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="right-panel">
+
+      <div class="rules-card" id="rules-card">
+        <button class="rules-toggle" id="rules-toggle">
+          <span class="rules-title">How to Play</span>
+          <span class="rules-chevron">▾</span>
+        </button>
+        <div class="rules-body" id="rules-body">
+          <ul class="rules-list">
+            <li>Use arrow keys or WASD to slide all tiles in a direction.</li>
+            <li>Tiles with the same number merge into their sum.</li>
+            <li>Each merge adds points equal to the new tile's value.</li>
+            <li>A new tile (2 or 4) appears after every move.</li>
+            <li>Reach the <strong style="color:var(--orange)">2048</strong> tile to win — but you can keep going.</li>
+            <li>The game ends when no moves remain.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="legend-card">
+        <div class="legend-label">Tile Scale</div>
+        <div class="legend-grid" id="legend-grid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM SECTION -->
+  <div class="bottom-section">
+    <div>
+      <div class="bottom-section-label">How to Play</div>
+      <ul class="bottom-rules-list">
+        <li>Arrow keys or WASD move all tiles simultaneously.</li>
+        <li>Two tiles of the same value merge into one.</li>
+        <li>Each merge scores points equal to the resulting tile.</li>
+        <li>After every move, a 2 or 4 tile spawns in an empty cell.</li>
+        <li>Hit 2048 to win — but you can keep playing for a higher score.</li>
+        <li>The game ends when the board is full and no merges are possible.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="bottom-section-label">Controls</div>
+      <ul class="bottom-rules-list">
+        <li>Arrow Up / W — slide tiles up.</li>
+        <li>Arrow Down / S — slide tiles down.</li>
+        <li>Arrow Left / A — slide tiles left.</li>
+        <li>Arrow Right / D — slide tiles right.</li>
+        <li>Undo reverts the last move (5 undos per game).</li>
+        <li>Swipe on mobile to move tiles in that direction.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="back-bar">
+    <a class="back-btn" href="games.html">← Back to Games</a>
+  </div>
+
+  <footer>
+    <span>2026 Tanmay Poddar</span>
+    <span>Toronto, Canada</span>
+  </footer>
+
+  <!-- WIN OVERLAY -->
+  <div class="full-overlay" id="win-overlay">
+    <div class="overlay-title">You<br><span>Won.</span></div>
+    <div class="overlay-sub">You reached 2048</div>
+    <div class="overlay-score" id="win-score">0</div>
+    <div class="overlay-btns">
+      <button class="overlay-btn" id="keep-going-btn">Keep Going ▶</button>
+      <button class="overlay-btn secondary" id="win-new-btn">New Game ↻</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div class="full-overlay" id="over-overlay">
+    <div class="overlay-title">Game<br><span>Over.</span></div>
+    <div class="overlay-sub">No moves remaining</div>
+    <div class="overlay-score" id="over-score">0</div>
+    <button class="overlay-btn" id="over-new-btn">Play Again ↻</button>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // Pure board-array engine. The board is the single source of
+    // truth. Rendering is a full rebuild from the board every time.
+    // No tile-object tracking — that was the source of all bugs.
+    // ═══════════════════════════════════════════════════════════════
+
+    const SIZE      = 4;
+    const MAX_UNDOS = 5;
+    const GAP       = 8;   // px, must match CSS gap
+
+    let board     = [];
+    let score     = 0;
+    let moves     = 0;
+    let undosLeft = MAX_UNDOS;
+    let history   = [];    // stack of {board, score, moves, undosLeft}
+    let won       = false;
+    let keepGoing = false;
+    let gameOver  = false;
+    let moveToken = 0;     // incremented each move; lets pending timeouts detect staleness
+    let highScore = parseInt(localStorage.getItem('2048_best') || '0');
+
+    // ─── HELPERS ─────────────────────────────────────────────────
+    const clone = b => b.map(r => [...r]);
+
+    function emptyBoard() {
+      return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+    }
+
+    // ─── SPAWN ───────────────────────────────────────────────────
+    // Returns {r,c} of the new tile, or null if board is full.
+    function spawnRandom() {
+      const cells = [];
+      for (let r = 0; r < SIZE; r++)
+        for (let c = 0; c < SIZE; c++)
+          if (board[r][c] === 0) cells.push([r, c]);
+      if (!cells.length) return null;
+      const [r, c] = cells[Math.floor(Math.random() * cells.length)];
+      board[r][c]  = Math.random() < 0.9 ? 2 : 4;
+      return { r, c };
+    }
+
+    // ─── SLIDE ONE LINE ──────────────────────────────────────────
+    // Takes an array of 4 values, slides+merges toward index 0.
+    // Returns { line, scoreGained, moved }.
+    function slideLine(orig) {
+      // compact non-zeros
+      let vals = orig.filter(v => v !== 0);
+      let gained = 0;
+      let merged = false;
+
+      for (let i = 0; i < vals.length - 1; i++) {
+        if (vals[i] === vals[i + 1]) {
+          vals[i]  *= 2;
+          gained   += vals[i];
+          vals[i + 1] = 0;
+          i++; // skip the consumed tile
+        }
+      }
+
+      // compact again after merges
+      vals = vals.filter(v => v !== 0);
+      while (vals.length < SIZE) vals.push(0);
+
+      const changed = vals.some((v, i) => v !== orig[i]);
+      return { line: vals, scoreGained: gained, moved: changed };
+    }
+
+    // ─── MOVE ────────────────────────────────────────────────────
+    function move(dir) {
+      if (gameOver) return;
+
+      // Snapshot for undo BEFORE we touch anything
+      const snap = { board: clone(board), score, moves, undosLeft };
+
+      let totalScore = 0;
+      let anyMoved   = false;
+      const newBoard = emptyBoard();
+
+      // For each of the 4 lines in this direction:
+      for (let idx = 0; idx < SIZE; idx++) {
+        // Extract line in slide order (always sliding toward index 0)
+        let line = [];
+        if (dir === 'left')  for (let c = 0; c < SIZE; c++) line.push(board[idx][c]);
+        if (dir === 'right') for (let c = SIZE-1; c >= 0; c--) line.push(board[idx][c]);
+        if (dir === 'up')    for (let r = 0; r < SIZE; r++) line.push(board[r][idx]);
+        if (dir === 'down')  for (let r = SIZE-1; r >= 0; r--) line.push(board[r][idx]);
+
+        const { line: result, scoreGained, moved } = slideLine(line);
+        if (moved) anyMoved = true;
+        totalScore += scoreGained;
+
+        // Write result back in the same coordinate order
+        for (let i = 0; i < SIZE; i++) {
+          if (dir === 'left')  newBoard[idx][i]        = result[i];
+          if (dir === 'right') newBoard[idx][SIZE-1-i]  = result[i];
+          if (dir === 'up')    newBoard[i][idx]          = result[i];
+          if (dir === 'down')  newBoard[SIZE-1-i][idx]   = result[i];
+        }
+      }
+
+      if (!anyMoved) return; // nothing happened, don't record history
+
+      // Commit
+      history.push(snap);
+      board  = newBoard;
+      score += totalScore;
+      moves++;
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('2048_best', highScore);
+      }
+
+      // Capture token so a stale timeout from a superseded move
+      // doesn't spawn an extra tile after the board has already advanced.
+      const token = ++moveToken;
+
+      // Render the slid board immediately so tiles animate to new positions,
+      // then spawn a new tile after the CSS transition (~100 ms) completes.
+      render(null);
+      updateUI();
+
+      setTimeout(() => {
+        if (token !== moveToken) return; // superseded by a later move
+        const spawned = spawnRandom();
+        render(spawned);
+        updateUI();
+        checkState();
+      }, 100);
+    }
+
+    // ─── UNDO ────────────────────────────────────────────────────
+    function undo() {
+      if (!history.length || undosLeft <= 0) return;
+      const prev = history.pop();
+      board     = prev.board;
+      score     = prev.score;
+      moves     = prev.moves;
+      undosLeft = prev.undosLeft - 1;
+      gameOver  = false;
+      hideOverlays();
+      render(null);
+      updateUI();
+    }
+
+    // ─── NEW GAME ────────────────────────────────────────────────
+    function newGame() {
+      board     = emptyBoard();
+      score     = 0;
+      moves     = 0;
+      undosLeft = MAX_UNDOS;
+      history   = [];
+      won       = false;
+      keepGoing = false;
+      gameOver  = false;
+      moveToken = 0;
+      hideOverlays();
+      renderSlots();
+      spawnRandom();
+      spawnRandom();
+      render(null);
+      updateUI();
+      setStatus('In progress');
+    }
+
+    // ─── GAME STATE ──────────────────────────────────────────────
+    function checkState() {
+      if (!won && !keepGoing) {
+        for (let r = 0; r < SIZE; r++)
+          for (let c = 0; c < SIZE; c++)
+            if (board[r][c] === 2048) { won = true; showWin(); return; }
+      }
+      if (!canMove()) {
+        gameOver = true;
+        setTimeout(showOver, 300);
+      }
+    }
+
+    function canMove() {
+      for (let r = 0; r < SIZE; r++)
+        for (let c = 0; c < SIZE; c++) {
+          if (board[r][c] === 0) return true;
+          if (c < SIZE-1 && board[r][c] === board[r][c+1]) return true;
+          if (r < SIZE-1 && board[r][c] === board[r+1][c]) return true;
+        }
+      return false;
+    }
+
+    // ─── RENDER ──────────────────────────────────────────────────
+    // Full teardown + rebuild of tile layer every frame.
+    // `newCell` = {r,c} of tile to animate as "new", or null.
+    function render(newCell) {
+      const layer = document.getElementById('tile-layer');
+      layer.innerHTML = '';
+
+      const boardEl = document.getElementById('game-board');
+      const inner   = boardEl.clientWidth - GAP * 2; // subtract padding
+      const ts      = (inner - GAP * (SIZE - 1)) / SIZE;
+
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          const val = board[r][c];
+          if (!val) continue;
+
+          const el       = document.createElement('div');
+          el.className   = 'tile';
+          el.dataset.value = val;
+          el.textContent = val;
+          el.style.width  = ts + 'px';
+          el.style.height = ts + 'px';
+          el.style.left   = (c * (ts + GAP)) + 'px';
+          el.style.top    = (r * (ts + GAP)) + 'px';
+
+          if (newCell && newCell.r === r && newCell.c === c) {
+            el.classList.add('new');
+          }
+
+          layer.appendChild(el);
+        }
+      }
+    }
+
+    // ─── GRID SLOTS ──────────────────────────────────────────────
+    function renderSlots() {
+      const gb = document.getElementById('game-board');
+      gb.innerHTML = '';
+      for (let i = 0; i < SIZE * SIZE; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'cell-slot';
+        gb.appendChild(slot);
+      }
+    }
+
+    // ─── UI UPDATES ──────────────────────────────────────────────
+    function highestTile() {
+      let max = 0;
+      for (let r = 0; r < SIZE; r++)
+        for (let c = 0; c < SIZE; c++)
+          if (board[r][c] > max) max = board[r][c];
+      return max || null;
+    }
+
+    function filledCount() {
+      let n = 0;
+      for (let r = 0; r < SIZE; r++)
+        for (let c = 0; c < SIZE; c++)
+          if (board[r][c]) n++;
+      return n;
+    }
+
+    function updateUI() {
+      const ht    = highestTile();
+      const htStr = ht ? ht.toLocaleString() : '—';
+      const best  = Math.max(score, highScore);
+
+      document.getElementById('score-display').textContent = score.toLocaleString();
+      document.getElementById('best-display').textContent  = best.toLocaleString();
+      document.getElementById('moves-display').textContent = moves;
+
+      document.getElementById('highest-display').textContent = htStr;
+      document.getElementById('undo-display').textContent    = undosLeft;
+      document.getElementById('tiles-display').textContent   = filledCount();
+
+      document.getElementById('left-score').textContent   = score.toLocaleString();
+      document.getElementById('left-best').textContent    = best.toLocaleString();
+      document.getElementById('left-moves').textContent   = moves;
+      document.getElementById('left-highest').textContent = htStr;
+
+      document.getElementById('undo-btn').disabled = (!history.length || undosLeft <= 0);
+    }
+
+    function setStatus(text, cls = '') {
+      const el = document.getElementById('board-status');
+      el.textContent = text;
+      el.className   = 'board-status' + (cls ? ' ' + cls : '');
+    }
+
+    function showWin() {
+      document.getElementById('win-score').textContent = score.toLocaleString();
+      setTimeout(() => document.getElementById('win-overlay').classList.add('show'), 300);
+      setStatus('2048 — You won!', 'win');
+    }
+    function showOver() {
+      document.getElementById('over-score').textContent = score.toLocaleString();
+      document.getElementById('over-overlay').classList.add('show');
+      setStatus('Game over', 'over');
+    }
+    function hideOverlays() {
+      document.getElementById('win-overlay').classList.remove('show');
+      document.getElementById('over-overlay').classList.remove('show');
+    }
+
+    // ─── LEGEND ──────────────────────────────────────────────────
+    const LEGEND_VALUES = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+    function buildLegend() {
+      const grid = document.getElementById('legend-grid');
+      grid.innerHTML = '';
+      LEGEND_VALUES.forEach(v => {
+        const item   = document.createElement('div');
+        item.className = 'legend-item';
+        const swatch = document.createElement('div');
+        swatch.className     = 'legend-swatch tile';
+        swatch.dataset.value = v;
+        swatch.textContent   = v;
+        swatch.style.cssText = 'position:static;width:28px;height:28px;font-size:0.6rem;transition:none;';
+        const label = document.createElement('span');
+        label.className   = 'legend-val';
+        label.textContent = v.toLocaleString();
+        item.appendChild(swatch);
+        item.appendChild(label);
+        grid.appendChild(item);
+      });
+    }
+
+    // ─── COLLAPSIBLE RULES ───────────────────────────────────────
+    document.getElementById('rules-toggle').addEventListener('click', () => {
+      document.getElementById('rules-card').classList.toggle('open');
+    });
+
+    // ─── BUTTONS ─────────────────────────────────────────────────
+    document.getElementById('new-game-btn').addEventListener('click', newGame);
+    document.getElementById('undo-btn').addEventListener('click', undo);
+    document.getElementById('win-new-btn').addEventListener('click', newGame);
+    document.getElementById('over-new-btn').addEventListener('click', newGame);
+    document.getElementById('keep-going-btn').addEventListener('click', () => {
+      keepGoing = true;
+      hideOverlays();
+      setStatus('In progress');
+    });
+
+    // ─── KEYBOARD ────────────────────────────────────────────────
+    const KEY_MAP = {
+      ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
+      w:'up', s:'down', a:'left', d:'right',
+      W:'up', S:'down', A:'left', D:'right'
+    };
+    document.addEventListener('keydown', e => {
+      const dir = KEY_MAP[e.key];
+      if (dir) { e.preventDefault(); move(dir); }
+    });
+
+    // ─── SWIPE ───────────────────────────────────────────────────
+    let touchStart = null;
+    const boardEl = document.getElementById('game-board');
+    boardEl.addEventListener('touchstart', e => {
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    boardEl.addEventListener('touchend', e => {
+      if (!touchStart) return;
+      const dx = e.changedTouches[0].clientX - touchStart.x;
+      const dy = e.changedTouches[0].clientY - touchStart.y;
+      touchStart = null;
+      if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+      move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+    }, { passive: true });
+
+    // ─── RESIZE ──────────────────────────────────────────────────
+    window.addEventListener('resize', () => render(null));
+
+    // ─── INIT ────────────────────────────────────────────────────
+    buildLegend();
+    newGame();
+  </script>
+</body>
+</html>
