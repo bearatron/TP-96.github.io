@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2048 — Tanmay Poddar</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/2048.css" />
+  </head>
+  <body>
+    <nav>
+      <a class="nav-logo" href="index.html">Tanmay Poddar</a>
+      <ul class="nav-links">
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="games.html" class="active">Games</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- ── LEFT PANEL ── -->
+      <div class="left-panel">
+        <h1 class="page-title">20<span>48</span></h1>
+        <p class="page-desc">
+          Slide the tiles. Merge the numbers. Reach 2048 — or go beyond.
+        </p>
+
+        <div class="action-group">
+          <button class="action-btn primary" id="new-game-btn">
+            New Game <span>↻</span>
+          </button>
+          <button class="action-btn" id="undo-btn">
+            Undo Move <span>⟵</span>
+          </button>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-card-label">Session</div>
+          <div class="stat-item">
+            <span class="stat-item-key">Score</span>
+            <span class="stat-item-val accent" id="left-score">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-key">Best</span>
+            <span class="stat-item-val" id="left-best">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-key">Moves</span>
+            <span class="stat-item-val" id="left-moves">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-key">Highest Tile</span>
+            <span class="stat-item-val" id="left-highest">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CENTER BOARD ── -->
+      <div class="board-wrap">
+        <div class="board-controls">
+          <span class="board-status" id="board-status">Ready</span>
+        </div>
+
+        <div class="score-strip">
+          <div class="score-cell">
+            <span class="score-key">Score</span>
+            <span class="score-val" id="score-display">0</span>
+          </div>
+          <div class="score-cell">
+            <span class="score-key">Best</span>
+            <span class="score-val" id="best-display">0</span>
+          </div>
+          <div class="score-cell">
+            <span class="score-key">Moves</span>
+            <span class="score-val" id="moves-display">0</span>
+          </div>
+        </div>
+
+        <div class="board-relative">
+          <div id="game-board">
+            <!-- 16 empty slots rendered by JS -->
+          </div>
+          <div id="tile-layer"></div>
+        </div>
+
+        <div class="board-stats-bar">
+          <div class="board-stat">
+            <span class="board-stat-key">Highest</span>
+            <span class="board-stat-val" id="highest-display">—</span>
+          </div>
+          <div class="board-stat-divider"></div>
+          <div class="board-stat">
+            <span class="board-stat-key">Undos Left</span>
+            <span class="board-stat-val" id="undo-display">5</span>
+          </div>
+          <div class="board-stat-divider"></div>
+          <div class="board-stat">
+            <span class="board-stat-key">Tiles</span>
+            <span class="board-stat-val" id="tiles-display">2</span>
+          </div>
+        </div>
+
+        <div class="swipe-hint">Swipe or use arrow keys to move tiles</div>
+      </div>
+
+      <!-- ── RIGHT PANEL ── -->
+      <div class="right-panel">
+        <div class="rules-card" id="rules-card">
+          <button class="rules-toggle" id="rules-toggle">
+            <span class="rules-title">How to Play</span>
+            <span class="rules-chevron">▾</span>
+          </button>
+          <div class="rules-body" id="rules-body">
+            <ul class="rules-list">
+              <li>Use arrow keys or WASD to slide all tiles in a direction.</li>
+              <li>Tiles with the same number merge into their sum.</li>
+              <li>Each merge adds points equal to the new tile's value.</li>
+              <li>A new tile (2 or 4) appears after every move.</li>
+              <li>
+                Reach the
+                <strong style="color: var(--orange)">2048</strong> tile to win —
+                but you can keep going.
+              </li>
+              <li>The game ends when no moves remain.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="legend-card">
+          <div class="legend-label">Tile Scale</div>
+          <div class="legend-grid" id="legend-grid">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM SECTION -->
+    <div class="bottom-section">
+      <div>
+        <div class="bottom-section-label">How to Play</div>
+        <ul class="bottom-rules-list">
+          <li>Arrow keys or WASD move all tiles simultaneously.</li>
+          <li>Two tiles of the same value merge into one.</li>
+          <li>Each merge scores points equal to the resulting tile.</li>
+          <li>After every move, a 2 or 4 tile spawns in an empty cell.</li>
+          <li>
+            Hit 2048 to win — but you can keep playing for a higher score.
+          </li>
+          <li>
+            The game ends when the board is full and no merges are possible.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <div class="bottom-section-label">Controls</div>
+        <ul class="bottom-rules-list">
+          <li>Arrow Up / W — slide tiles up.</li>
+          <li>Arrow Down / S — slide tiles down.</li>
+          <li>Arrow Left / A — slide tiles left.</li>
+          <li>Arrow Right / D — slide tiles right.</li>
+          <li>Undo reverts the last move (5 undos per game).</li>
+          <li>Swipe on mobile to move tiles in that direction.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="back-bar">
+      <a class="back-btn" href="games.html">← Back to Games</a>
+    </div>
+
+    <footer>
+      <span>2026 Tanmay Poddar</span>
+      <span>Toronto, Canada</span>
+    </footer>
+
+    <!-- WIN OVERLAY -->
+    <div class="full-overlay" id="win-overlay">
+      <div class="overlay-title">You<br /><span>Won.</span></div>
+      <div class="overlay-sub">You reached 2048</div>
+      <div class="overlay-score" id="win-score">0</div>
+      <div class="overlay-btns">
+        <button class="overlay-btn" id="keep-going-btn">Keep Going ▶</button>
+        <button class="overlay-btn secondary" id="win-new-btn">
+          New Game ↻
+        </button>
+      </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div class="full-overlay" id="over-overlay">
+      <div class="overlay-title">Game<br /><span>Over.</span></div>
+      <div class="overlay-sub">No moves remaining</div>
+      <div class="overlay-score" id="over-score">0</div>
+      <button class="overlay-btn" id="over-new-btn">Play Again ↻</button>
+    </div>
+
+    <script src="../scripts/2048.js"></script>
+  </body>
+</html>
